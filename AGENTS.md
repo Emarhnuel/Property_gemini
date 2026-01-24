@@ -2,13 +2,14 @@
 
 ## Project Overview
 
-The AI Real Estate Agent is an event-driven automation system that handles the complete real estate discovery, analysis, and visualization process. It orchestrates multiple AI agents through a **three-phase workflow**:
+The AI Real Estate Agent is an event-driven automation system that handles the complete real estate discovery, analysis, and visualization process. It orchestrates multiple AI agents through a **four-phase workflow** with human-in-the-loop:
 
 1. **Research Phase** - Property scraping and data extraction
-2. **Location Phase** - Geospatial amenity analysis
-3. **Design Phase** - AI-powered interior redesign visualization
+2. **Human Approval** - User selects which properties to proceed with (async pause point)
+3. **Location Phase** - Geospatial amenity analysis
+4. **Design Phase** - AI-powered interior redesign visualization
 
-The system helps users find properties, analyze neighborhoods, and visualize potential interior transformations using AI-generated images.
+The system helps users find properties, review and approve them, analyze neighborhoods, and visualize potential interior transformations using AI-generated images.
 
 ---
 
@@ -230,14 +231,21 @@ GEMINI_IMAGE_MODEL=gemini-2.0-flash-exp  # Optional, defaults to this
                                     │
                                     ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                  2. LOCATION ANALYZER CREW                               │
-│  Manager assigns → 6 Analyzers (parallel) → Report                       │
-│  Output: location_intelligence.json                                      │
+│                   2. HUMAN APPROVAL (PAUSE)                              │
+│  Flow pauses → Frontend displays properties → User selects               │
+│  API: POST /api/approve with approved_property_ids                       │
 └─────────────────────────────────────────────────────────────────────────┘
                                     │
                                     ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                  3. INTERIOR DESIGN CREW                                 │
+│                  3. LOCATION ANALYZER CREW                               │
+│  Manager assigns → 6 Analyzers (parallel) → Report                       │
+│  Input: Only approved properties                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                  4. INTERIOR DESIGN CREW                                 │
 │  Coordinator → Redesigner → Report                                       │
 │  Output: design_results.json (before/after images)                       │
 └─────────────────────────────────────────────────────────────────────────┘
@@ -311,14 +319,69 @@ class RealEstateState(BaseModel):
 
 ## Running the System
 
+### CLI Mode (Development)
 ```bash
-# Default run (Lagos, Nigeria demo)
+# Default run (Lagos, Nigeria demo) - will pause for approval
 python -m src.real_ai_agents.main
-
-# With custom trigger payload
-python -c "from src.real_ai_agents.main import run_with_trigger; run_with_trigger()" \
-  '{"search_criteria": {"location": "Austin, TX", "bedrooms": 2}, "design_style": "modern minimalist"}'
 
 # Generate flow visualization
 python -c "from src.real_ai_agents.main import plot; plot()"
 ```
+
+### API Mode (Production)
+```bash
+# Start FastAPI server
+uvicorn src.real_ai_agents.api:app --reload --port 8000
+```
+
+---
+
+## API Endpoints
+
+### POST `/api/search`
+Start a property search. Returns properties pending approval.
+
+**Request:**
+```json
+{
+  "location": "Lagos, Nigeria",
+  "property_type": "apartment",
+  "bedrooms": 3,
+  "max_price": 500000,
+  "design_style": "modern minimalist"
+}
+```
+
+**Response:**
+```json
+{
+  "status": "pending_approval",
+  "flow_id": "abc123-...",
+  "message": "Review the properties below...",
+  "properties": { ... }
+}
+```
+
+### POST `/api/approve`
+Resume flow with user-selected properties.
+
+**Request:**
+```json
+{
+  "flow_id": "abc123-...",
+  "approved_property_ids": ["prop_001", "prop_002", "prop_005"]
+}
+```
+
+**Response:**
+```json
+{
+  "status": "complete",
+  "summary": { "properties_found": 5, "properties_approved": 3, ... },
+  "report": { ... }
+}
+```
+
+### GET `/api/health`
+Health check endpoint.
+
