@@ -2,6 +2,7 @@
 __pycache__/
 lib/
 .DS_Store
+.kiro/
 
 
 # Ignore all markdown files except README.md and AGENTS.md
