@@ -3,6 +3,7 @@ __pycache__/
 lib/
 .DS_Store
 
+
 # Ignore all markdown files except README.md and AGENTS.md
 *.md
 !README.md
