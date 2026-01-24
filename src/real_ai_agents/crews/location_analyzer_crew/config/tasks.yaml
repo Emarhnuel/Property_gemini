@@ -1,0 +1,290 @@
+# Location Analyzer Crew Tasks - Hierarchical Process
+# Manager assigns properties to analyzers for parallel processing
+
+
+assign_properties:
+  description: >
+    Review the approved properties from {approved_properties} and create an 
+    assignment plan for parallel analysis.
+    
+    ASSIGNMENT RULES:
+    1. Maximum 6 properties can be analyzed (user approval limit)
+    2. Each property gets ONE dedicated analyzer (no sharing)
+    3. If fewer than 6 properties approved, only assign that many analyzers
+    4. Unassigned analyzers should be listed but not given work
+    5. Extract the full address for each property for geocoding
+    
+    PROPERTY DATA TO EXTRACT:
+    For each approved property, pull from the research results:
+    - property_id: Unique identifier
+    - full_address: Complete address string for geocoding
+    - city: For regional context
+    - country: For API region settings
+    
+    ASSIGNMENT FORMAT:
+    Create clear 1-to-1 mappings: Property A → Analyzer 1, Property B → Analyzer 2, etc.
+  expected_output: >
+    A JSON assignment plan:
+    {
+      "total_properties": 3,
+      "assignments": [
+        {
+          "analyzer": "location_analyzer_1",
+          "property_id": "prop_001",
+          "address": "123 Main St, Austin, TX 78701, USA",
+          "city": "Austin",
+          "country": "USA"
+        },
+        {
+          "analyzer": "location_analyzer_2", 
+          "property_id": "prop_002",
+          "address": "456 Oak Ave, Austin, TX 78702, USA",
+          "city": "Austin",
+          "country": "USA"
+        }
+      ],
+      "unassigned_analyzers": ["location_analyzer_3", "location_analyzer_4"]
+    }
+  agent: manager
+
+
+analyze_property:
+  description: >
+    Perform comprehensive location analysis for the assigned property using 
+    Google Maps APIs.
+    
+    STEP 1 - GEOCODING:
+    Convert the property address to coordinates (latitude, longitude).
+    If geocoding fails, document the error and skip to report.
+    
+    STEP 2 - AMENITY SEARCH (6km radius):
+    Search for each amenity category using Google Maps Places API:
+    
+    1. MARKETS (grocery_store, supermarket):
+       - Find 3 nearest options
+       - Note if organic/specialty stores available
+    
+    2. GYMS (gym, fitness_center):
+       - Find 3 nearest options
+       - Include major chains if present (Planet Fitness, etc.)
+    
+    3. BUS PARKS (bus_station, transit_station):
+       - Find nearest bus terminal/station
+       - Note major transit lines if available
+    
+    4. RAILWAY TERMINALS (train_station, subway_station, light_rail_station):
+       - Find nearest rail options
+       - Distinguish between metro/subway vs long-distance rail
+    
+    5. STADIUMS (stadium):
+       - Find any sports venues within radius
+       - Note: May be empty in many locations (that's OK)
+    
+    6. MALLS (shopping_mall):
+       - Find 3 nearest shopping centers
+       - Note size/type if available
+    
+    7. AIRPORTS (airport):
+       - Extend search to 50km for airports
+       - Note if international or domestic
+    
+    8. SEAPORTS (seaport, port, harbor):
+       - Only relevant for coastal properties
+       - Mark as "N/A - inland location" if not coastal
+    
+    STEP 3 - DISTANCE CALCULATION:
+    For each found amenity:
+    - Calculate driving distance (km)
+    - Calculate driving time (minutes)
+    - Note walking distance for items under 2km
+    
+    STEP 4 - SCORING:
+    Assign proximity scores (0-100) for each category:
+    - 100: Amenity within 500m
+    - 80-99: Amenity within 1km
+    - 60-79: Amenity within 2km
+    - 40-59: Amenity within 4km
+    - 20-39: Amenity within 6km
+    - 0-19: No amenity found within radius
+    
+    STEP 5 - ADVANTAGES & DISADVANTAGES:
+    Based on your analysis, compile:
+    
+    ADVANTAGES (things that make this location desirable):
+    - Walkable amenities (markets, gyms within 1km)
+    - Multiple transit options nearby
+    - Quick airport access for travelers
+    - Variety of shopping/entertainment options
+    - Quiet residential area away from noise
+    
+    DISADVANTAGES (things that could be deal-breakers):
+    - Far from public transit (no bus/rail within 2km)
+    - Limited grocery options
+    - No nearby gyms/fitness centers
+    - Long commute to airport (30+ min)
+    - Near stadium (noise on event days)
+    - Industrial areas nearby
+    - Limited entertainment/nightlife options
+    
+    Be specific and honest - mention actual distances and real concerns.
+    
+    ERROR HANDLING:
+    - If Google Maps API fails, retry once then document the error
+    - If no results for a category, score as 0 with note "None found within Xkm"
+    - Never fabricate amenity data
+  expected_output: >
+    A JSON object with complete location analysis:
+    {
+      "property_id": "prop_001",
+      "address": "123 Main St, Austin, TX",
+      "coordinates": {"lat": 30.2672, "lng": -97.7431},
+      "analysis_timestamp": "2024-01-15T10:30:00Z",
+      "amenities": {
+        "markets": {
+          "score": 85,
+          "nearest": {
+            "name": "H-E-B Grocery",
+            "distance_km": 0.8,
+            "drive_time_min": 3,
+            "address": "456 Commerce St"
+          },
+          "options_found": 3,
+          "notes": "Multiple grocery options within walking distance"
+        },
+        "gyms": {
+          "score": 70,
+          "nearest": {...},
+          "options_found": 2,
+          "notes": null
+        },
+        "bus_parks": {...},
+        "railway_terminals": {...},
+        "stadiums": {
+          "score": 0,
+          "nearest": null,
+          "options_found": 0,
+          "notes": "No stadiums within 6km radius"
+        },
+        "malls": {...},
+        "airports": {
+          "score": 60,
+          "nearest": {
+            "name": "Austin-Bergstrom International",
+            "distance_km": 12.5,
+            "drive_time_min": 18
+          },
+          "notes": "International airport, 20min drive"
+        },
+        "seaports": {
+          "score": 0,
+          "nearest": null,
+          "notes": "N/A - inland location"
+        }
+      },
+      "overall_score": 72,
+      "advantages": [
+        "Walking distance to H-E-B grocery (0.8km)",
+        "Bus station within 5-minute walk",
+        "Multiple gym options nearby",
+        "20-minute drive to international airport"
+      ],
+      "disadvantages": [
+        "No stadiums or sports venues within 6km",
+        "Limited entertainment options in immediate area",
+        "No rail transit access"
+      ],
+      "summary": "Good daily amenities access, limited entertainment/sports venues",
+      "api_errors": []
+    }
+  async_execution: true
+
+compile_location_report:
+  description: >
+    Compile all location analysis results into a final JSON report for the 
+    frontend and Engagement Phase.
+    
+    REPORT STRUCTURE:
+    
+    1. METADATA:
+       - Analysis timestamp
+       - Number of properties analyzed
+       - Search radius used (6km standard, 50km for airports)
+       - Any global API issues
+    
+    2. PROPERTIES ARRAY (sorted by overall_score descending):
+       For each property include:
+       - All amenity scores and details from analysis
+       - Overall location score (average of category scores)
+       - Location grade (A/B/C/D/F based on score)
+       - Human-readable summary
+    
+    3. COMPARATIVE ANALYSIS (if multiple properties):
+       - Best for transit: property_id
+       - Best for shopping: property_id
+       - Best overall location: property_id
+       - Side-by-side score comparison table
+    
+    4. RECOMMENDATIONS:
+       - Flag any properties with critical location issues
+       - Note properties with exceptional amenity access
+    
+    FORMAT REQUIREMENTS:
+    - All distances in kilometers with 1 decimal place
+    - All times in minutes (integer)
+    - Scores as integers 0-100
+    - Consistent field names (snake_case)
+    - Empty arrays [] for missing data, not null
+  expected_output: >
+    A comprehensive JSON report:
+    {
+      "metadata": {
+        "generated_at": "2024-01-15T11:00:00Z",
+        "properties_analyzed": 3,
+        "search_radius_km": 6,
+        "airport_radius_km": 50,
+        "api_status": "all_successful"
+      },
+      "properties": [
+        {
+          "property_id": "prop_001",
+          "address": "123 Main St, Austin, TX",
+          "overall_score": 78,
+          "location_grade": "B",
+          "summary": "Excellent daily amenities, good transit, limited entertainment",
+          "amenities": {
+            "markets": {"score": 85, "nearest_km": 0.8, "count": 3},
+            "gyms": {"score": 70, "nearest_km": 1.2, "count": 2},
+            "bus_parks": {"score": 90, "nearest_km": 0.3, "count": 1},
+            "railway_terminals": {"score": 65, "nearest_km": 2.1, "count": 1},
+            "stadiums": {"score": 0, "nearest_km": null, "count": 0},
+            "malls": {"score": 75, "nearest_km": 1.8, "count": 2},
+            "airports": {"score": 60, "nearest_km": 12.5, "count": 1},
+            "seaports": {"score": 0, "nearest_km": null, "count": 0, "note": "inland"}
+          },
+          "strengths": ["Walking distance to groceries", "Near bus station"],
+          "weaknesses": ["No nearby entertainment venues"]
+        }
+      ],
+      "comparison": {
+        "best_transit": "prop_003",
+        "best_shopping": "prop_001", 
+        "best_overall": "prop_001",
+        "score_table": [
+          {"property_id": "prop_001", "overall": 78, "transit": 77, "shopping": 80},
+          {"property_id": "prop_002", "overall": 65, "transit": 45, "shopping": 72}
+        ]
+      },
+      "flags": {
+        "location_concerns": [],
+        "exceptional_access": ["prop_001: walking distance to multiple amenities"]
+      }
+    }
+  agent: report_agent
+  context:
+    - analyze_property_1
+    - analyze_property_2
+    - analyze_property_3
+    - analyze_property_4
+    - analyze_property_5
+    - analyze_property_6
+  output_file: output/location_intelligence.json

@@ -1,0 +1,98 @@
+# Interior Design Crew Tasks Configuration
+
+analyze_room_images:
+  description: >
+    Analyze the property images from the research results to identify:
+    1. Room types (living room, bedroom, kitchen, bathroom, etc.)
+    2. Current interior style and condition
+    3. Key furniture and features present
+    4. Recommended design improvements
+    
+    Use the "Generate Room Description" tool on each property image URL.
+    
+    Input: Research results containing property listings with image URLs.
+    Process each property's images and compile analysis for use by the redesigner.
+  expected_output: >
+    A JSON object containing room analyses for each property:
+    {
+      "properties": [
+        {
+          "property_id": "...",
+          "rooms": [
+            {
+              "image_url": "...",
+              "room_type": "living room",
+              "current_style": "...",
+              "condition": "good",
+              "redesign_suggestions": ["...", "..."]
+            }
+          ]
+        }
+      ]
+    }
+  agent: design_coordinator
+
+generate_redesigns:
+  description: >
+    For each analyzed room, generate a redesigned visualization using AI image tools.
+    
+    Steps for each room:
+    1. Use "Suggest Design Styles" to get appropriate style prompts for the room type
+    2. Select the most suitable style based on the coordinator's analysis
+    3. Use "Redesign Room Image" with the original image URL and style prompt
+    4. Collect the redesigned images (base64) and descriptions
+    
+    Focus on creating compelling before/after transformations that help
+    property seekers visualize the potential of each space.
+  expected_output: >
+    A JSON object with redesign results for each room:
+    {
+      "redesigns": [
+        {
+          "property_id": "...",
+          "room_type": "living room",
+          "original_image_url": "...",
+          "style_applied": "Modern Minimalist",
+          "redesigned_image_base64": "...",
+          "description": "..."
+        }
+      ]
+    }
+  agent: room_redesigner
+
+compile_design_report:
+  description: >
+    Compile all room analyses and redesigns into a comprehensive design report.
+    
+    The report should:
+    1. List each property with its ID and location
+    2. For each property, show all rooms with before (original) and after (redesigned) images
+    3. Include style descriptions and design notes
+    4. Provide a summary of transformations completed
+    
+    Ensure the report is well-structured JSON that can be consumed by the frontend.
+  expected_output: >
+    A comprehensive JSON design report:
+    {
+      "metadata": {
+        "generated_at": "ISO timestamp",
+        "total_properties": N,
+        "total_rooms_redesigned": M
+      },
+      "properties": [
+        {
+          "property_id": "...",
+          "location": "...",
+          "rooms": [
+            {
+              "room_type": "living room",
+              "original_image_url": "...",
+              "redesigned_image_base64": "...",
+              "style_applied": "Modern Minimalist",
+              "design_notes": "..."
+            }
+          ]
+        }
+      ]
+    }
+  agent: report_agent
