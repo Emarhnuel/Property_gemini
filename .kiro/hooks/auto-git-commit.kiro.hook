@@ -1,0 +1,20 @@
+{
+  "enabled": true,
+  "name": "Auto Git Commit & Push",
+  "description": "Automatically stages, commits with an intelligent commit message, and pushes files to GitHub when they are saved, while respecting .gitignore rules",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "**/*",
+      "yaml",
+      "py"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A file has been saved at {{filePath}}.\nPlease perform the following git operations:\n1. Stage the file: `git add {{filePath}}`\n2. Analyze the file changes and create a clear, concise commit message that describes what was changed\n3. Commit with your generated message: `git commit -m \"<your message>\"`\n4. Push to GitHub: `git push`\n5. Skip every file in the gitignore file\nGenerate a commit message that:\n- Is clear and descriptive\n- Follows conventional commit format if appropriate (e.g., \"feat:\", \"fix:\", \"docs:\", \"refactor:\")\n- Summarizes the actual changes made to the file\n- Is concise (under 72 characters for the subject line)\nExecute all commands and report the results."
+  },
+  "workspaceFolderName": "real_ai_agents",
+  "shortName": "auto-git-commit"
+}
