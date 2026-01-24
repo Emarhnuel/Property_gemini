@@ -13,7 +13,7 @@ import json
 from typing import List, Optional
 from pydantic import BaseModel, Field
 
-from crewai.flow.flow import Flow, listen, start
+from crewai.flow.flow import Flow, listen, start, and_
 from crewai.flow.human_feedback import human_feedback, HumanFeedbackResult
 
 from src.real_ai_agents.crews.research_crew.research_crew import ResearchCrew
@@ -46,6 +46,7 @@ class RealEstateState(BaseModel):
     rooms_redesigned: int = 0
 
 
+@persist
 class RealEstateFlow(Flow[RealEstateState]):
     """AI Real Estate Agent Flow with human-in-the-loop property approval."""
 
@@ -149,7 +150,7 @@ class RealEstateFlow(Flow[RealEstateState]):
         self.state.properties_analyzed = self.state.properties_approved
         print(f"   ✅ Analyzed {self.state.properties_analyzed} locations")
 
-    @listen(run_location_phase)
+    @listen(filter_approved_properties)
     def run_design_phase(self):
         """Phase 4: Run Interior Design Crew."""
         print("\n🎨 Phase 4: Interior Design")
@@ -172,7 +173,7 @@ class RealEstateFlow(Flow[RealEstateState]):
         
         print(f"   ✅ Redesigned {self.state.rooms_redesigned} rooms")
 
-    @listen(run_design_phase)
+    @listen(and_(run_location_phase, run_design_phase))
     def compile_final_report(self):
         """Final: Compile unified report."""
         print("\n📊 Compiling Final Report")
