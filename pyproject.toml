@@ -5,7 +5,14 @@ description = "Real_ai_agents using crewAI"
 authors = [{ name = "Your Name", email = "you@example.com" }]
 requires-python = ">=3.10,<3.14"
 dependencies = [
-    "crewai[tools]==1.7.0"
+    "crewai[tools]==1.8.1",
+    "google-genai>=1.60.0",
+    "litellm>=1.75.3",
+    "matplotlib>=3.10.8",
+    "networkx>=3.4.2",
+    "requests>=2.32.5",
+    "scikit-learn>=1.7.2",
+    "tavily-python>=0.7.19",
 ]
 
 [project.scripts]
