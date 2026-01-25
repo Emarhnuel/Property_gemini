@@ -16,9 +16,9 @@ from pydantic import BaseModel, Field
 from crewai.flow.flow import Flow, listen, start, and_
 from crewai.flow.human_feedback import human_feedback, HumanFeedbackResult
 
-from src.real_ai_agents.crews.research_crew.research_crew import ResearchCrew
-from src.real_ai_agents.crews.location_analyzer_crew.location_analyzer_crew import LocationAnalyzerCrew
-from src.real_ai_agents.crews.interior_design_crew.interior_design_crew import InteriorDesignCrew
+from real_ai_agents.crews.research_crew.research_crew import ResearchCrew
+from real_ai_agents.crews.location_analyzer_crew.location_analyzer_crew import LocationAnalyzerCrew
+from real_ai_agents.crews.interior_design_crew.interior_design_crew import InteriorDesignCrew
 
 
 class SearchCriteria(BaseModel):
