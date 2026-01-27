@@ -1,7 +1,115 @@
 import os
 import re
 import json
-from typing import List, Tuple, Any
+from typing import List, Tuple, Any, Optional
+from pydantic import BaseModel
+
+
+# ============== PYDANTIC OUTPUT MODELS ==============
+
+class PropertyImage(BaseModel):
+    url: Optional[str] = None
+    caption: Optional[str] = None
+    is_primary: Optional[bool] = None
+
+class PropertyDetails(BaseModel):
+    title: Optional[str] = None
+    type: Optional[str] = None
+    address: Optional[str] = None
+    price: Optional[Any] = None  # Can be int, float, or string like "$2,500"
+    price_frequency: Optional[str] = None
+    bedrooms: Optional[int] = None
+    bathrooms: Optional[int] = None
+    sqft: Optional[int] = None
+    year_built: Optional[int] = None
+    lot_size: Optional[str] = None
+    parking: Optional[str] = None
+    furnished: Optional[str] = None
+    pet_policy: Optional[str] = None
+    available_date: Optional[str] = None
+    lease_terms: Optional[str] = None
+
+class PropertyFeatures(BaseModel):
+    amenities: Optional[List[str]] = []
+    utilities: Optional[List[str]] = []
+    security: Optional[List[str]] = []
+    appliances: Optional[List[str]] = []
+    special: Optional[List[str]] = []
+
+class PropertyDescription(BaseModel):
+    full_text: Optional[str] = None
+    neighborhood: Optional[str] = None
+
+class PropertyContact(BaseModel):
+    name: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[str] = None
+    brokerage: Optional[str] = None
+    photo_url: Optional[str] = None
+
+class PropertyMetadata(BaseModel):
+    listing_url: Optional[str] = None
+    platform: Optional[str] = None
+    listing_id: Optional[str] = None
+    date_listed: Optional[str] = None
+    days_on_market: Optional[int] = None
+    status: Optional[str] = None
+
+class PropertyRecord(BaseModel):
+    images: Optional[List[PropertyImage]] = []
+    details: Optional[PropertyDetails] = None
+    features: Optional[PropertyFeatures] = None
+    description: Optional[PropertyDescription] = None
+    contact: Optional[PropertyContact] = None
+    metadata: Optional[PropertyMetadata] = None
+    extraction_notes: Optional[str] = None
+
+class PropertyListOutput(BaseModel):
+    """Output model for extract_property_data task."""
+    listings: List[PropertyRecord]
+
+
+# ============== REPORT OUTPUT MODEL ==============
+
+class PropertySpecs(BaseModel):
+    bedrooms: Optional[int] = None
+    bathrooms: Optional[int] = None
+    sqft: Optional[int] = None
+    type: Optional[str] = None
+
+class ReportContact(BaseModel):
+    name: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[str] = None
+    company: Optional[str] = None
+
+class ReportProperty(BaseModel):
+    id: str
+    display_title: Optional[str] = None
+    price_display: Optional[str] = None
+    location_display: Optional[str] = None
+    primary_image: Optional[str] = None
+    all_images: Optional[List[str]] = []
+    specs: Optional[PropertySpecs] = None
+    contact: Optional[ReportContact] = None
+    listing_url: Optional[str] = None
+
+class ReportMetadata(BaseModel):
+    search_criteria: Optional[str] = None
+    generated_at: Optional[str] = None
+    total_found: Optional[int] = None
+    total_validated: Optional[int] = None
+
+class ReportIssues(BaseModel):
+    properties_with_no_contact: Optional[List[str]] = []
+    properties_with_no_images: Optional[List[str]] = []
+    properties_flagged: Optional[List[str]] = []
+
+class ResearchReportOutput(BaseModel):
+    """Output model for compile_research_report task."""
+    metadata: Optional[ReportMetadata] = None
+    properties: List[ReportProperty]
+    issues: Optional[ReportIssues] = None
 
 from crewai import Agent, Crew, Process, Task, LLM
 from crewai.agents.agent_builder.base_agent import BaseAgent
@@ -16,124 +124,47 @@ OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
 # ============== GUARDRAILS ==============
 
-def truncate_listings_guardrail(result: TaskOutput) -> Tuple[bool, Any]:
-    """
-    Guardrail to ensure strictly no more than 6 listings are passed to the next step.
-    If more than 6 are found, it truncates the list.
-    """
-    try:
-        # Parse the result
-        if isinstance(result.raw, str):
-            # Clean up markdown code blocks if present
-            clean_raw = result.raw.replace("```json", "").replace("```", "").strip()
-            try:
-                data = json.loads(clean_raw)
-            except json.JSONDecodeError:
-                return (False, "Output must be valid JSON to verify listing count.")
-        else:
-            data = result.raw
 
-        # Check and Truncate
-        if isinstance(data, dict) and "listings" in data and isinstance(data["listings"], list):
-            count = len(data["listings"])
-            if count > 6:
-                # Slice the list to exactly 6
-                data["listings"] = data["listings"][:6]
-                
-                # Update summary if present
-                if "scrape_summary" in data:
-                    data["scrape_summary"]["original_count"] = count
-                    data["scrape_summary"]["truncated_count"] = 6
-                    data["scrape_summary"]["note"] = "Listings truncated to 6 by guardrail."
-
-        # Return success with the modified data
-        # We dump it back to string to ensure consistency for the next task
-        return (True, json.dumps(data))
-
-    except Exception as e:
-        return (False, f"Error in truncation guardrail: {str(e)}")
-
-
-def validate_property_extraction(result: TaskOutput) -> Tuple[bool, Any]:
-    """Validate that extracted property data contains all mandatory fields."""
-    try:
-        # Parse the result - handle both string and dict
-        if isinstance(result.raw, str):
-            clean_raw = result.raw.replace("```json", "").replace("```", "").strip()
-            try:
-                data = json.loads(clean_raw)
-            except json.JSONDecodeError:
-                return (False, "Output must be valid JSON")
-        else:
-            data = result.raw
+# def validate_property_extraction(result: TaskOutput) -> Tuple[bool, Any]:
+#     """Validate that extracted property data contains mandatory field keywords."""
+#     try:
+#         raw_output = result.raw if isinstance(result.raw, str) else str(result.raw)
         
-        # Handle single property or list of properties
-        properties = data if isinstance(data, list) else [data]
+#         # Check for mandatory fields with ACTUAL content (not null, not empty)
+#         mandatory_patterns = [
+#             # phone_number: must have digits (7+ chars like +1-555-123-4567)
+#             (r'"phone":\s*"[\d\s\-\+\(\)]{7,}"|"phone_number":\s*"[\d\s\-\+\(\)]{7,}"', "phone_number (must have 7+ digit phone)"),
+#             # property_url: must be http:// or https:// URL
+#             (r'"listing_url":\s*"https?://[^"]+"|"property_url":\s*"https?://[^"]+"', "property_url (must be valid URL)"),
+#             # property_location: must have actual text (at least 5 chars)
+#             (r'"address":\s*"[^"]{5,}"|"property_location":\s*"[^"]{5,}"', "property_location (must have address text)"),
+#             # agent_name/company: must have actual name (at least 2 chars)
+#             (r'"name":\s*"[^"]{2,}"|"agent_name":\s*"[^"]{2,}"|"brokerage":\s*"[^"]{2,}"|"company_name":\s*"[^"]{2,}"', "agent_name/company_name (must have name)"),
+#             # description: must have actual text (at least 10 chars)
+#             (r'"full_text":\s*"[^"]{10,}"|"property_description":\s*"[^"]{10,}"', "property_description (must have description text)"),
+#             # image_url: must have actual http URL inside array or field
+#             (r'"images":\s*\[\s*\{[^}]*"url":\s*"https?://|"image_url":\s*"https?://[^"]+"|"primary_image":\s*"https?://[^"]+"', "image_url (must have image URL)"),
+#             # price: must have actual number (digits)
+#             (r'"price":\s*\d+|"price":\s*"\$?[\d,]+"', "price (must have numeric price)"),
+#         ]
         
-        mandatory_fields = [
-            "phone_number",
-            "property_url", 
-            "property_location",
-            "agent_name",  # or company_name
-            "property_description",
-            "image_url",
-            "price"  # rent or purchase fee
-        ]
+#         missing = []
+#         for pattern, field_name in mandatory_patterns:
+#             if not re.search(pattern, raw_output, re.IGNORECASE):
+#                 missing.append(field_name)
         
-        errors = []
-        for i, prop in enumerate(properties):
-            missing = []
-            
-            # Check phone number (with basic format validation)
-            phone = prop.get("phone_number") or prop.get("contact", {}).get("phone")
-            if not phone:
-                missing.append("phone_number")
-            elif phone and not re.match(r'^[\d\s\-\+\(\)]{7,}$', str(phone)):
-                errors.append(f"Property {i+1}: Invalid phone format: {phone}")
-            
-            # Check property URL
-            url = prop.get("property_url") or prop.get("listing_url") or prop.get("metadata", {}).get("listing_url")
-            if not url:
-                missing.append("property_url")
-            elif url and not url.startswith(("http://", "https://")):
-                errors.append(f"Property {i+1}: Invalid URL format: {url}")
-            
-            # Check location
-            location = prop.get("property_location") or prop.get("location") or prop.get("details", {}).get("address")
-            if not location:
-                missing.append("property_location")
-            
-            # Check agent/company name
-            agent_name = (prop.get("agent_name") or prop.get("company_name") or 
-                         prop.get("contact", {}).get("name") or prop.get("contact", {}).get("brokerage"))
-            if not agent_name:
-                missing.append("agent_name or company_name")
-            
-            # Check description
-            description = prop.get("property_description") or prop.get("description", {}).get("full_text")
-            if not description:
-                missing.append("property_description")
-            
-            # Check image URL
-            image = prop.get("image_url") or prop.get("images")
-            if not image:
-                missing.append("image_url")
-            
-            # Check price
-            price = prop.get("price") or prop.get("details", {}).get("price")
-            if not price:
-                missing.append("price")
-            
-            if missing:
-                errors.append(f"Property {i+1} missing: {', '.join(missing)}")
+#         if missing:
+#             return (False, f"Missing mandatory fields: {', '.join(missing)}")
         
-        if errors:
-            return (False, "Validation failed:\n" + "\n".join(errors))
+#         # Parse JSON and return dict (required when using output_json=PydanticModel)
+#         clean_output = raw_output.replace("```json", "").replace("```", "").strip()
+#         parsed_data = json.loads(clean_output)
+#         return (True, parsed_data)
         
-        return (True, result.raw)
-        
-    except Exception as e:
-        return (False, f"Validation error: {str(e)}")
+#     except json.JSONDecodeError as e:
+#         return (False, f"Invalid JSON format: {str(e)}")
+#     except Exception as e:
+#         return (False, f"Validation error: {str(e)}")
 
 
 # HallucinationGuardrail for validate_data task
@@ -144,17 +175,31 @@ hallucination_guardrail = HallucinationGuardrail(
 )
 
 llm = LLM(
-    model="openrouter/deepseek/deepseek-r1",
+    model="openrouter/x-ai/grok-4.1-fast",
     base_url="https://openrouter.ai/api/v1",
     api_key=OPENROUTER_API_KEY,
     temperature=0.1,
     #stream=True
 )
 
+llm1 = LLM(
+    model="openrouter/google/gemini-3-flash-preview",
+    base_url="https://openrouter.ai/api/v1",
+    api_key=OPENROUTER_API_KEY,
+    temperature=0.1,
+    #stream=True
+)
+ 
+
+gemini_llm = LLM(
+    model="gemini/gemini-3-flash-preview",
+    temperature=0.3,
+)
+
 
 tavily_search = TavilySearchTool(
             search_depth="advanced",
-            max_results=10,
+            max_results=4,
             include_raw_content=True,
             include_images=True
         )
@@ -189,22 +234,27 @@ class ResearchCrew:
         return Agent(
             config=self.agents_config["scraper"],  # type: ignore[index]
             verbose=True,
-            llm=llm,
-            max_rpm=10,
+            llm=llm1,
             max_iter=10,
-            cache=True, 
+            # cache=True,
             respect_context_window=True, 
-            max_retry_limit=3,
+            max_retry_limit=6,
+            max_execution_time=200,
+            inject_date=True,
+            date_format="%Y-%m-%d",
             tools=[tavily_search, tavily_extractor],
         )
-
+ 
     @agent
     def data_extractor(self) -> Agent:
         """Data extractor agent that structures property data."""
         return Agent(
             config=self.agents_config["data_extractor"],  # type: ignore[index]
             verbose=True,
-            max_iter=6,
+            max_iter=7,
+            max_retry_limit=6,
+            max_execution_time=120,
+            respect_context_window=True,
             llm=llm
         )
 
@@ -215,6 +265,8 @@ class ResearchCrew:
             config=self.agents_config["validator"],  # type: ignore[index]
             verbose=True,
             max_iter=3,
+            max_retry_limit=3,
+            max_execution_time=100,
             llm=llm 
         )
 
@@ -225,7 +277,10 @@ class ResearchCrew:
             config=self.agents_config["report_agent"],  # type: ignore[index]
             verbose=True,
             max_iter=5,
-            llm=llm 
+            respect_context_window=True,
+            max_retry_limit=3,
+            max_execution_time=120,
+            llm=llm1
         )
 
     @task
@@ -233,8 +288,6 @@ class ResearchCrew:
         """Task to scrape property listings from platforms."""
         return Task(
             config=self.tasks_config["scrape_listings"],  # type: ignore[index]
-            guardrail=truncate_listings_guardrail, # Added the truncation guardrail here
-            guardrail_max_retries=1, # No need to retry much, just truncate and proceed
         )
 
     @task
@@ -242,8 +295,9 @@ class ResearchCrew:
         """Task to extract structured data from raw listings."""
         return Task(
             config=self.tasks_config["extract_property_data"],  # type: ignore[index]
-            guardrail=validate_property_extraction,
-            guardrail_max_retries=3,
+            #guardrail=validate_property_extraction,
+            #guardrail_max_retries=3,
+            output_json=PropertyListOutput,
         )
 
     @task
@@ -251,8 +305,8 @@ class ResearchCrew:
         """Task to validate extracted property data."""
         return Task(
             config=self.tasks_config["validate_data"],  # type: ignore[index]
-            guardrail=hallucination_guardrail,
-            guardrail_max_retries=2,
+            # guardrail=hallucination_guardrail,
+            # guardrail_max_retries=2,
         )
 
 
@@ -262,6 +316,7 @@ class ResearchCrew:
         return Task(
             config=self.tasks_config["compile_research_report"],  # type: ignore[index]
             output_file="output/research_results.json",
+            output_json=ResearchReportOutput,
         )
 
     @crew
@@ -271,8 +326,8 @@ class ResearchCrew:
             agents=self.agents,
             tasks=self.tasks,
             process=Process.sequential,
-            memory=True,
-            stream=True,
+            memory=False,
+            stream=False,
             planning=True,  
             verbose=True,
         )
