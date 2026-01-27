@@ -18,7 +18,7 @@ from crewai.agents.agent_builder.base_agent import BaseAgent
 from crewai.project import CrewBase, agent, crew, task
 from crewai.tasks.task_output import TaskOutput
 
-from src.real_ai_agents.tools.gemini_image_tools import (
+from real_ai_agents.tools.gemini_image_tools import (
     redesign_room_image,
     generate_room_description,
     suggest_design_styles,
@@ -92,10 +92,23 @@ def validate_design_report(result: TaskOutput) -> Tuple[bool, Any]:
 
 
 llm = LLM(
-    model="openrouter/deepseek/deepseek-chat",
+    model="openrouter/x-ai/grok-4.1-fast",
     base_url="https://openrouter.ai/api/v1",
     api_key=OPENROUTER_API_KEY,
-    temperature=0.3,
+    temperature=0.1,
+)
+
+llm1 = LLM(
+    model="openrouter/deepseek/deepseek-v3.2",
+    base_url="https://openrouter.ai/api/v1",
+    api_key=OPENROUTER_API_KEY,
+    temperature=0.1,
+    #stream=True
+)
+
+gemini_llm = LLM(
+    model="gemini/gemini-3-pro-preview",
+    temperature=0.1,
 )
 
 
@@ -123,12 +136,12 @@ class InteriorDesignCrew:
         return Agent(
             config=self.agents_config["design_coordinator"],  # type: ignore[index]
             verbose=True,
-            llm=llm,
+            llm=llm1,
             max_iter=6,
             cache=True,
             tools=[generate_room_description],
         )
-
+ 
     @agent
     def room_redesigner(self) -> Agent:
         """Room redesigner that generates transformed room images."""
@@ -149,7 +162,7 @@ class InteriorDesignCrew:
         return Agent(
             config=self.agents_config["report_agent"],  # type: ignore[index]
             verbose=True,
-            llm=llm,
+            llm=gemini_llm,
             max_iter=5,
             cache=True,
         )
@@ -187,6 +200,6 @@ class InteriorDesignCrew:
             agents=self.agents,
             tasks=self.tasks,
             process=Process.sequential,
-            memory=True,
+            memory=False,
             verbose=True,
         )
