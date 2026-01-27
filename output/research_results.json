@@ -1,0 +1,109 @@
+{
+  "metadata": {
+    "search_criteria": "2BR apartments in San Diego, CA under $3,000/month",
+    "generated_at": "2024-05-22T14:30:00Z",
+    "total_found": 4,
+    "total_validated": 4
+  },
+  "properties": [
+    {
+      "id": "prop_21492773",
+      "display_title": "7219 Mohawk St, Unit B",
+      "price_display": "$2,850/month",
+      "location_display": "7219 Mohawk St, Unit B, San Diego, CA 92115",
+      "primary_image": null,
+      "all_images": [],
+      "specs": {
+        "bedrooms": 2,
+        "bathrooms": 1,
+        "sqft": 900,
+        "type": "apartment"
+      },
+      "contact": {
+        "name": null,
+        "phone": null,
+        "email": null,
+        "company": null
+      },
+      "listing_url": "https://www.apartmenthomeliving.com/property-listing/7219-Mohawk-St-San-Diego-CA-Unit-B-92115-21492773"
+    },
+    {
+      "id": "prop_11571770",
+      "display_title": "5665 Friars Rd, Unit 226",
+      "price_display": "$2,900/month",
+      "location_display": "5665 Friars Rd, Unit 226, San Diego, CA 92110",
+      "primary_image": null,
+      "all_images": [],
+      "specs": {
+        "bedrooms": 2,
+        "bathrooms": 2,
+        "sqft": 1120,
+        "type": "apartment"
+      },
+      "contact": {
+        "name": null,
+        "phone": null,
+        "email": null,
+        "company": null
+      },
+      "listing_url": "https://www.apartmenthomeliving.com/property-listing/5665-Friars-Rd-San-Diego-CA-Unit-226-92110-11571770"
+    },
+    {
+      "id": "prop_32031676",
+      "display_title": "2831 29th St, Unit Top",
+      "price_display": "$2,695/month",
+      "location_display": "2831 29th St, Unit Top, San Diego, CA 92104",
+      "primary_image": null,
+      "all_images": [],
+      "specs": {
+        "bedrooms": 2,
+        "bathrooms": 1,
+        "sqft": 1000,
+        "type": "apartment"
+      },
+      "contact": {
+        "name": null,
+        "phone": null,
+        "email": null,
+        "company": null
+      },
+      "listing_url": "https://www.apartmenthomeliving.com/property-listing/2831-29th-St-San-Diego-CA-Unit-Top-92104-32031676"
+    },
+    {
+      "id": "prop_18917174",
+      "display_title": "2169 Brant St, Unit 335 West Ivy st",
+      "price_display": "$2,895/month",
+      "location_display": "2169 Brant St, Unit 335, West Ivy st, San Diego, CA 92101",
+      "primary_image": null,
+      "all_images": [],
+      "specs": {
+        "bedrooms": 2,
+        "bathrooms": 2,
+        "sqft": 700,
+        "type": "apartment"
+      },
+      "contact": {
+        "name": null,
+        "phone": null,
+        "email": null,
+        "company": null
+      },
+      "listing_url": "https://www.apartmenthomeliving.com/property-listing/2169-Brant-St-San-Diego-CA-Unit-335-West-Ivy-st-92101-18917174"
+    }
+  ],
+  "issues": {
+    "properties_with_no_contact": [
+      "prop_21492773",
+      "prop_11571770",
+      "prop_32031676",
+      "prop_18917174"
+    ],
+    "properties_with_no_images": [
+      "prop_21492773",
+      "prop_11571770",
+      "prop_32031676",
+      "prop_18917174"
+    ],
+    "properties_flagged": []
+  }
+}
