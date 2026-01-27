@@ -1,0 +1,26 @@
+{
+  "search_criteria": {
+    "location": "San Diego, california, USA",
+    "property_type": "apartment",
+    "bedrooms": 2,
+    "bathrooms": null,
+    "max_price": 2900.0,
+    "rent_frequency": "monthly",
+    "additional_requirements": null
+  },
+  "summary": {
+    "properties_found": 4,
+    "properties_approved": 0,
+    "properties_analyzed": 0,
+    "rooms_redesigned": 0
+  },
+  "approved_property_ids": [
+    "get the image url of each properties and most of the properties have no detail",
+    "if you click on the link its showing no details or 404. Search other property webiste and dont search apartmenthomeliving website again"
+  ],
+  "phases": {
+    "research": "{\n  \"metadata\": {\n    \"search_criteria\": \"2BR apartments in San Diego, CA under $3,000/month\",\n    \"generated_at\": \"2024-05-22T14:30:00Z\",\n    \"total_found\": 4,\n    \"total_validated\": 4\n  },\n  \"properties\": [\n    {\n      \"id\": \"prop_21492773\",\n      \"display_title\": \"7219 Mohawk St, Unit B\",\n      \"price_display\": \"$2,850/month\",\n      \"location_display\": \"7219 Mohawk St, Unit B, San Diego, CA 92115\",\n      \"primary_image\": null,\n      \"all_images\": [],\n      \"specs\": {\n        \"bedrooms\": 2,\n        \"bathrooms\": 1,\n        \"sqft\": 900,\n        \"type\": \"apartment\"\n      },\n      \"contact\": {\n        \"name\": null,\n        \"phone\": null,\n        \"email\": null,\n        \"company\": null\n      },\n      \"listing_url\": \"https://www.apartmenthomeliving.com/property-listing/7219-Mohawk-St-San-Diego-CA-Unit-B-92115-21492773\"\n    },\n    {\n      \"id\": \"prop_11571770\",\n      \"display_title\": \"5665 Friars Rd, Unit 226\",\n      \"price_display\": \"$2,900/month\",\n      \"location_display\": \"5665 Friars Rd, Unit 226, San Diego, CA 92110\",\n      \"primary_image\": null,\n      \"all_images\": [],\n      \"specs\": {\n        \"bedrooms\": 2,\n        \"bathrooms\": 2,\n        \"sqft\": 1120,\n        \"type\": \"apartment\"\n      },\n      \"contact\": {\n        \"name\": null,\n        \"phone\": null,\n        \"email\": null,\n        \"company\": null\n      },\n      \"listing_url\": \"https://www.apartmenthomeliving.com/property-listing/5665-Friars-Rd-San-Diego-CA-Unit-226-92110-11571770\"\n    },\n    {\n      \"id\": \"prop_32031676\",\n      \"display_title\": \"2831 29th St, Unit Top\",\n      \"price_display\": \"$2,695/month\",\n      \"location_display\": \"2831 29th St, Unit Top, San Diego, CA 92104\",\n      \"primary_image\": null,\n      \"all_images\": [],\n      \"specs\": {\n        \"bedrooms\": 2,\n        \"bathrooms\": 1,\n        \"sqft\": 1000,\n        \"type\": \"apartment\"\n      },\n      \"contact\": {\n        \"name\": null,\n        \"phone\": null,\n        \"email\": null,\n        \"company\": null\n      },\n      \"listing_url\": \"https://www.apartmenthomeliving.com/property-listing/2831-29th-St-San-Diego-CA-Unit-Top-92104-32031676\"\n    },\n    {\n      \"id\": \"prop_18917174\",\n      \"display_title\": \"2169 Brant St, Unit 335 West Ivy st\",\n      \"price_display\": \"$2,895/month\",\n      \"location_display\": \"2169 Brant St, Unit 335, West Ivy st, San Diego, CA 92101\",\n      \"primary_image\": null,\n      \"all_images\": [],\n      \"specs\": {\n        \"bedrooms\": 2,\n        \"bathrooms\": 2,\n        \"sqft\": 700,\n        \"type\": \"apartment\"\n      },\n      \"contact\": {\n        \"name\": null,\n        \"phone\": null,\n        \"email\": null,\n        \"company\": null\n      },\n      \"listing_url\": \"https://www.apartmenthomeliving.com/property-listing/2169-Brant-St-San-Diego-CA-Unit-335-West-Ivy-st-92101-18917174\"\n    }\n  ],\n  \"issues\": {\n    \"properties_with_no_contact\": [\n      \"prop_21492773\",\n      \"prop_11571770\",\n      \"prop_32031676\",\n      \"prop_18917174\"\n    ],\n    \"properties_with_no_images\": [\n      \"prop_21492773\",\n      \"prop_11571770\",\n      \"prop_32031676\",\n      \"prop_18917174\"\n    ],\n    \"properties_flagged\": []\n  }\n}",
+    "location": null,
+    "design": null
+  }
+}
