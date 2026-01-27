@@ -14,6 +14,7 @@ from typing import List, Optional
 from pydantic import BaseModel, Field
 
 from crewai.flow.flow import Flow, listen, start, and_
+from crewai.flow.persistence import persist
 from crewai.flow.human_feedback import human_feedback, HumanFeedbackResult
 
 from real_ai_agents.crews.research_crew.research_crew import ResearchCrew
@@ -24,10 +25,11 @@ from real_ai_agents.crews.interior_design_crew.interior_design_crew import Inter
 class SearchCriteria(BaseModel):
     """User search criteria for property discovery."""
     location: str = Field(description="City, neighborhood, or area to search")
-    property_type: str = Field(default="apartment", description="Type: apartment, house, condo, etc.")
+    property_type: str = Field(default="apartment", description="Type: apartment, house, condo, shortlet, hotel, etc.")
     bedrooms: Optional[int] = Field(default=None, description="Number of bedrooms")
     bathrooms: Optional[int] = Field(default=None, description="Number of bathrooms")
     max_price: Optional[float] = Field(default=None, description="Maximum price/rent")
+    rent_frequency: str = Field(default="monthly", description="Payment frequency: daily, weekly, monthly, yearly")
     additional_requirements: Optional[str] = Field(default=None, description="Other requirements")
 
 
@@ -36,6 +38,9 @@ class RealEstateState(BaseModel):
     search_criteria: Optional[SearchCriteria] = None
     design_style_preference: str = "modern minimalist"
     approved_property_ids: List[str] = Field(default_factory=list)
+    excluded_sites: List[str] = Field(default_factory=list)
+    retry_count: int = 0
+    user_feedback: Optional[str] = None
     research_results: Optional[str] = None
     filtered_research_results: Optional[str] = None
     location_results: Optional[str] = None
@@ -46,7 +51,7 @@ class RealEstateState(BaseModel):
     rooms_redesigned: int = 0
 
 
-@persist
+@persist()
 class RealEstateFlow(Flow[RealEstateState]):
     """AI Real Estate Agent Flow with human-in-the-loop property approval."""
 
@@ -62,10 +67,11 @@ class RealEstateFlow(Flow[RealEstateState]):
             self.state.design_style_preference = crewai_trigger_payload.get("design_style", "modern minimalist")
         else:
             self.state.search_criteria = SearchCriteria(
-                location="Lagos, Nigeria",
+                location="San Diego, california, USA",
                 property_type="apartment",
                 bedrooms=2,
-                max_price=500000
+                max_price=2900,
+                rent_frequency="monthly"
             )
         
         print(f"   Location: {self.state.search_criteria.location}")
@@ -81,8 +87,12 @@ class RealEstateFlow(Flow[RealEstateState]):
         search_query = f"{criteria.bedrooms or ''} bedroom {criteria.property_type} in {criteria.location}"
         if criteria.max_price:
             search_query += f" under {criteria.max_price}"
+        search_query += f" ({criteria.rent_frequency} rent)"
         
-        result = ResearchCrew().crew().kickoff(inputs={"search_query": search_query.strip()})
+        result = ResearchCrew().crew().kickoff(inputs={
+            "search_criteria": search_query.strip(),
+            "excluded_sites": self.state.excluded_sites
+        })
         self.state.research_results = result.raw
         
         try:
@@ -100,14 +110,18 @@ class RealEstateFlow(Flow[RealEstateState]):
     @listen(run_research_phase)
     @human_feedback(
         message="Review the properties and select which ones to proceed with. "
-                "Respond with a JSON array of property IDs, e.g. ['prop_001', 'prop_002']",
+                "Respond with a JSON array of property IDs, e.g. ['prop_001', 'prop_002']. "
+                "Or type 'retry' with feedback to search again.",
+        emit=["approved", "retry"],
+        llm="gemini/gemini-3-flash-preview",
+        default_outcome="approved",
     )
     def await_property_approval(self):
         """PAUSE: Wait for user to select properties."""
         print("\n⏸️  Awaiting Property Approval...")
         return self.state.research_results
 
-    @listen(await_property_approval)
+    @listen("approved")
     def filter_approved_properties(self, result: HumanFeedbackResult):
         """Process user feedback and filter properties."""
         print("\n✅ Processing Property Selection")
@@ -133,6 +147,25 @@ class RealEstateFlow(Flow[RealEstateState]):
             self.state.filtered_research_results = self.state.research_results
         
         print(f"   ✅ Approved {self.state.properties_approved} properties")
+
+    @listen("retry")
+    def handle_retry_search(self, result: HumanFeedbackResult):
+        """Handle user request to retry search with new criteria."""
+        print("\n🔄 Retry Requested")
+        
+        self.state.retry_count += 1
+        self.state.user_feedback = result.feedback
+        
+        # Parse excluded sites from feedback
+        feedback_lower = result.feedback.lower()
+        if "apartmenthomeliving" in feedback_lower:
+            self.state.excluded_sites.append("apartmenthomeliving.com")
+        
+        print(f"   Retry #{self.state.retry_count}")
+        print(f"   Excluded sites: {self.state.excluded_sites}")
+        
+        # Re-run research phase
+        return self.run_research_phase()
 
     @listen(filter_approved_properties)
     def run_location_phase(self):
