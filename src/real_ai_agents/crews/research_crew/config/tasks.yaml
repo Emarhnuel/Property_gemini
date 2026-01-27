@@ -3,50 +3,36 @@
 scrape_listings:
   description: >
     Find and scrape property listings matching the criteria: {search_criteria}.
-    
-    PHASE 1 - PLATFORM DISCOVERY:
-    1. Use web search to find "top real estate websites in {location}" or 
-       "best property listing sites in {location}"
-    2. Identify 3-5 most relevant platforms for this specific location:
-       - International: Zillow, Realtor.com, Redfin, Trulia (if applicable)
-       - Regional/local MLS sites specific to the area
-       - Country-specific platforms (e.g., Rightmove for UK, Domain for Australia, 
-         PropertyGuru for Singapore, Lamudi for Philippines, etc.)
-    3. Prioritize platforms that:
-       - Have the most listings for this location
-       - Allow public access without login
-       - Show detailed property information 
+
+    PHASE 1 - DISCOVERY & SEARCH:
+    1. Use Tavily Search to find property listings matching the criteria: {search_criteria}
+       - Search for: "{search_criteria} listings" or "houses/apartments/hotels for rent in {search_criteria}"
+    2. Do NOT restrict search to specific pre-defined platforms. Use whatever Tavily finds relevant.
+    3. Identify 4 promising property listing URLs from the search results.
        
-    
-    PHASE 2 - PROPERTY SEARCH:
-    1. For each selected platform, construct search URLs using the criteria:
-       - Location: {search_criteria.location}
-       - Property type: {search_criteria.property_type}
-       - Price range: {search_criteria.budget}
-       - Bedrooms/bathrooms if specified
-    2. Navigate to search results pages
-    3. Collect ALL listing URLs from search results (paginate if needed)
-    
-    PHASE 3 - LISTING SCRAPING:
-    1. Use Firecrawl to render each listing page fully (wait for JavaScript)
-    2. Extract the complete page content including all visible text and HTML
-    3. Capture images, contact info sections, and property details
-    4. Document any pages that failed to load or were blocked
-    
+    PHASE 2 - EXTRACTION:
+    1. For each identified listing URL, use Tavily Extract to get the page content.
+    2. Extract the complete property details from the raw content.
+    3. Document any pages that failed to load or were blocked.
+
     IMPORTANT:
-    - STOP after collecting exactly 6 listings that match the user's criteria
-    - Do NOT continue scraping once you have 6 valid listings
+    - STOP after collecting exactly 4 listings that match the user's criteria
+    - Do NOT continue scraping once you have 4 valid listings
+    - Do NOT scrape from social media (Facebook, Instagram, Twitter, WhatsApp groups)
+    - Only use dedicated property/hospitality websites found via Tavily Search
+    - Check the date_listed or date_updated field for each property
+    - SKIP properties listed more than 5 months ago from today's date
+    - If no date is available, INCLUDE the property if it matches criteria
     - Only count listings that match the search criteria (location, property type, budget)
-    - Include the platform source for each listing
-    - Record timestamps for when each page was scraped
+    - Include the platform source and url for each listing
     - If a platform blocks access, note it and move to alternatives
-    - If you cannot find 6 matching listings across all platforms, return what you found
+    - If you cannot find 4 matching listings, return what you found
   expected_output: >
     A JSON object containing:
-    
+
     1. platforms_discovered: Array of platforms found and used
     2. listings: Array of raw listing objects
-    
+
     Structure:
     {
       "platforms_discovered": [
@@ -90,14 +76,14 @@ scrape_listings:
 extract_property_data:
   description: >
     Parse the raw listing data and extract comprehensive property information.
-    
+
     Required data to extract for each property:
-    
+
     PROPERTY IMAGES:
     - All available image URLs (exterior, interior, rooms, amenities)
     - Image captions/descriptions if available
     - Primary/featured image identifier
-    
+
     PROPERTY DETAILS:
     - Property title/headline
     - Property type (apartment, house, duplex, condo, studio, etc.)
@@ -107,32 +93,34 @@ extract_property_data:
     - Bedrooms count
     - Bathrooms count
     - Square footage/meters
-    - Year built
-    - Lot size (if applicable)
+    - Year built (if applicable)
     - Parking spaces/garage info
     - Furnished status
     - Pet policy
+    - Price frequency: daily, weekly, monthly, or yearly
+    - Minimum stay (for shortlets/hotels)
+    - Check-in/Check-out times (for shortlets/hotels)
     - Available date
     - Lease terms (for rentals)
-    
+
     PROPERTY FEATURES:
     - Amenities list (pool, gym, balcony, garden, etc.)
     - Utilities included
     - Security features
     - Appliances included
     - Special features (waterfront, mountain view, etc.)
-    
+
     PROPERTY DESCRIPTION:
     - Full listing description text
     - Neighborhood description if available
-    
+
     CONTACT INFORMATION:
     - Agent/owner name
     - Phone number(s)
     - Email address
     - Brokerage/agency name
     - Agent photo URL if available
-    
+
     LISTING METADATA:
     - Original listing URL
     - Platform source (Zillow, Realtor, etc.)
@@ -140,7 +128,7 @@ extract_property_data:
     - Date listed
     - Days on market
     - Listing status (active, pending, etc.)
-    
+
     Handle missing data gracefully by marking fields as null with extraction notes.
   expected_output: >
     A list of structured PropertyRecord objects containing:
@@ -160,34 +148,34 @@ validate_data:
   description: >
     Validate all extracted PropertyRecord objects for data quality and assign 
     quality scores to each property.
-    
+
     VALIDATION CHECKLIST:
     1. MANDATORY FIELDS (fail if missing):
        - property_location/address (at minimum city required)
        - price (any format, but must exist)
        - At least ONE contact method (phone OR email OR listing URL)
-    
+
     2. PHONE NUMBER VALIDATION:
        - Must be 7+ digits
        - Can include +, -, (), spaces
        - Flag but don't reject unusual formats
-    
+
     3. URL VALIDATION:
        - Must start with http:// or https://
        - Image URLs should end in common extensions (.jpg, .png, .webp) or be CDN URLs
-    
+
     4. PRICE REASONABILITY:
        - Flag prices under $100 (likely missing zeros)
        - Flag prices over $100M (likely errors)
        - Note currency if not USD
-    
+
     5. QUALITY SCORING (0-100):
        - 100: All fields present, all validations pass
        - 80-99: Minor issues (missing optional fields)
        - 60-79: Some issues (1-2 validation warnings)
        - 40-59: Significant issues (missing important fields)
        - 0-39: Critical issues (missing mandatory fields)
-    
+
     IMPORTANT: Do NOT remove properties with issues. Flag them and let the human decide.
   expected_output: >
     A JSON array of validated PropertyRecord objects, each with added fields:
@@ -195,7 +183,7 @@ validate_data:
     - validation_status: "pass" | "warning" | "fail"
     - validation_notes: Array of specific issues found
     - is_actionable: Boolean (true if has enough data to contact agent)
-    
+
     Plus a summary object:
     - total_properties: count
     - passed: count with score >= 80
@@ -210,7 +198,7 @@ compile_research_report:
   description: >
     Compile all validated property records into a final JSON report optimized 
     for the frontend Human Decision Gate interface.
-    
+
     REPORT STRUCTURE:
     1. METADATA section:
        - search_criteria: Original search parameters
@@ -218,7 +206,7 @@ compile_research_report:
        - total_found: Number of properties scraped
        - total_validated: Number passing validation
        - quality_summary: Breakdown by quality tier
-    
+
     2. PROPERTIES array (sorted by quality_score descending):
        Each property should have:
        - id: Unique identifier for frontend reference
@@ -232,12 +220,12 @@ compile_research_report:
        - listing_url: Link to original listing
        - quality_score: From validation
        - quality_notes: Human-readable issues summary
-    
+
     3. ISSUES section:
        - properties_with_no_contact: List of property IDs
        - properties_with_no_images: List of property IDs
        - properties_flagged: List with reasons
-    
+
     FORMAT REQUIREMENTS:
     - All prices formatted with currency symbol
     - All dates in ISO format
