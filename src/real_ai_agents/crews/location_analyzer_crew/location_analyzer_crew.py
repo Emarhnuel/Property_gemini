@@ -7,7 +7,7 @@ from crewai.agents.agent_builder.base_agent import BaseAgent
 from crewai.project import CrewBase, agent, crew, task
 from crewai.tasks.task_output import TaskOutput
 
-from ..tools.google_maps_tools import google_places_geocode_tool, google_places_nearby_tool
+from real_ai_agents.tools.google_maps_tools import google_places_geocode_tool, google_places_nearby_tool
 
 
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
@@ -108,10 +108,22 @@ def validate_location_report(result: TaskOutput) -> Tuple[bool, Any]:
         return (False, f"Validation error: {str(e)}")
 
 llm = LLM(
-    model="openrouter/deepseek/deepseek-chat",
+    model="openrouter/x-ai/grok-4.1-fast",
     base_url="https://openrouter.ai/api/v1",
     api_key=OPENROUTER_API_KEY,
     temperature=0.1,
+)
+
+llm1 = LLM(
+    model="openrouter/deepseek/deepseek-v3.2",
+    base_url="https://openrouter.ai/api/v1",
+    api_key=OPENROUTER_API_KEY,
+    temperature=0.1,
+)
+
+gemini_llm = LLM(
+    model="gemini/gemini-3-pro-preview",
+    temperature=0.3,
 )
 
 
@@ -144,7 +156,7 @@ class LocationAnalyzerCrew:
         return Agent(
             config=self.agents_config["manager"],  # type: ignore[index]
             verbose=True,
-            llm=llm,
+            llm=gemini_llm,
             max_iter=8,
             cache=True,
         )
@@ -171,7 +183,7 @@ class LocationAnalyzerCrew:
             config=self.agents_config["location_analyzer"],  # type: ignore[index]
             respect_context_window=True,
             verbose=True,
-            llm=llm,
+            llm=llm1,
             max_iter=6,
             max_rpm=15,
             cache=True,
@@ -201,7 +213,7 @@ class LocationAnalyzerCrew:
             config=self.agents_config["location_analyzer"],  # type: ignore[index]
             respect_context_window=True,
             verbose=True,
-            llm=llm,
+            llm=llm1,
             max_iter=6,
             max_rpm=15,
             cache=True,
@@ -231,7 +243,7 @@ class LocationAnalyzerCrew:
             config=self.agents_config["location_analyzer"],  # type: ignore[index]
             respect_context_window=True,
             verbose=True,
-            llm=llm,
+            llm=llm1,
             max_iter=6,
             max_rpm=15,
             cache=True,
@@ -245,7 +257,7 @@ class LocationAnalyzerCrew:
         return Agent(
             config=self.agents_config["report_agent"],  # type: ignore[index]
             verbose=True,
-            llm=llm,
+            llm=gemini_llm,
             max_iter=5,
             cache=True,
         )
@@ -341,7 +353,7 @@ class LocationAnalyzerCrew:
             tasks=self.tasks,
             process=Process.hierarchical,
             manager_agent=self.manager(),
-            memory=True,
+            memory=False,
             planning=True,
             verbose=True,
             
