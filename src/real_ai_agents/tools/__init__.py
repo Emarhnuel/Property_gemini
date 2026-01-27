@@ -6,12 +6,12 @@ This module exports all custom tools used by the crews:
 - Gemini Image tools for interior design (Interior Design Crew)
 """
 
-from src.real_ai_agents.tools.google_maps_tools import (
+from real_ai_agents.tools.google_maps_tools import (
     google_places_geocode_tool,
     google_places_nearby_tool,
 )
 
-from src.real_ai_agents.tools.gemini_image_tools import (
+from real_ai_agents.tools.gemini_image_tools import (
     redesign_room_image,
     generate_room_description,
     suggest_design_styles,
