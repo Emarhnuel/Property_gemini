@@ -5,6 +5,7 @@ from typing import List, Tuple, Any, Optional
 from pydantic import BaseModel
 
 
+
 # ============== PYDANTIC OUTPUT MODELS ==============
 
 class PropertyImage(BaseModel):
@@ -253,8 +254,8 @@ class ResearchCrew:
             max_iter=7,
             reasoning=True, 
             max_reasoning_attempts=3, 
-            max_retry_limit=8, 
-            max_execution_time=180,
+            max_retry_limit=8,  
+            max_execution_time=340,
             respect_context_window=True,
             llm=llm
         )
