@@ -1,0 +1,114 @@
+{
+  "metadata": {
+    "search_criteria": "2 Bedroom apartments in New York, NY under $3,000",
+    "generated_at": "2025-05-22T14:30:00Z",
+    "total_found": 4,
+    "total_validated": 4
+  },
+  "properties": [
+    {
+      "id": "prop_001",
+      "display_title": "Renovated 2BR Apartment at 3856 Broadway",
+      "price_display": "$2,750/month",
+      "location_display": "3856 Broadway, Apt 22, New York, NY",
+      "primary_image": "https://cdn-img-feed.streeteasy.com/nyc/image/1/4321.jpg",
+      "all_images": [
+        "https://cdn-img-feed.streeteasy.com/nyc/image/1/4321.jpg",
+        "https://cdn-img-feed.streeteasy.com/nyc/image/2/4322.jpg"
+      ],
+      "specs": {
+        "bedrooms": 2,
+        "bathrooms": 1,
+        "sqft": null,
+        "type": "apartment"
+      },
+      "contact": {
+        "name": "John Doe",
+        "phone": "555-0192",
+        "email": null,
+        "company": "StreetEasy"
+      },
+      "listing_url": "https://streeteasy.com/building/3856-broadway-new_york/22"
+    },
+    {
+      "id": "prop_002",
+      "display_title": "2BR Apartment with High Ceilings in Brooklyn",
+      "price_display": "$2,800/month",
+      "location_display": "1205 Broadway, Brooklyn, NY 11221, Unit 3",
+      "primary_image": "https://photos.zillowstatic.com/fp/1.jpg",
+      "all_images": [
+        "https://photos.zillowstatic.com/fp/1.jpg"
+      ],
+      "specs": {
+        "bedrooms": 2,
+        "bathrooms": null,
+        "sqft": null,
+        "type": "apartment"
+      },
+      "contact": {
+        "name": "Management Office",
+        "phone": "212-555-9876",
+        "email": null,
+        "company": "Zillow"
+      },
+      "listing_url": "https://www.zillow.com/homedetails/1205-Broadway-Brooklyn-NY-11221/unit-3"
+    },
+    {
+      "id": "prop_003",
+      "display_title": "Pet Friendly 2BR near Off Broadway",
+      "price_display": "$2,650/month",
+      "location_display": "550 West 158th St, New York, NY (Off Broadway)",
+      "primary_image": "https://images1.apartments.com/i2/abc.jpg",
+      "all_images": [
+        "https://images1.apartments.com/i2/abc.jpg"
+      ],
+      "specs": {
+        "bedrooms": 2,
+        "bathrooms": null,
+        "sqft": null,
+        "type": "apartment"
+      },
+      "contact": {
+        "name": "Agent Sarah",
+        "phone": "917-555-1234",
+        "email": null,
+        "company": "Apartments.com"
+      },
+      "listing_url": "https://www.apartments.com/550-w-158th-st-new-york-ny/v7e8r9/"
+    },
+    {
+      "id": "prop_004",
+      "display_title": "Spacious 2BR/1BA in Elevator Building",
+      "price_display": "$2,895/month",
+      "location_display": "601 West 135th St, New York, NY",
+      "primary_image": "https://rentberry.com/images/listing1.jpg",
+      "all_images": [
+        "https://rentberry.com/images/listing1.jpg"
+      ],
+      "specs": {
+        "bedrooms": 2,
+        "bathrooms": 1,
+        "sqft": null,
+        "type": "apartment"
+      },
+      "contact": {
+        "name": "Rentberry Portal",
+        "phone": null,
+        "email": null,
+        "company": "Rentberry"
+      },
+      "listing_url": "https://rentberry.com/apartments/601-west-135th-st-new-york"
+    }
+  ],
+  "issues": {
+    "properties_with_no_contact": [
+      "prop_004"
+    ],
+    "properties_with_no_images": [],
+    "properties_flagged": [
+      "prop_001: Phone number unusually short (7 digits)",
+      "prop_002: Missing bathrooms count",
+      "prop_003: Missing bathrooms count"
+    ]
+  }
+}
