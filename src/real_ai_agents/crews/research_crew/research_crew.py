@@ -256,7 +256,7 @@ class ResearchCrew:
             max_retry_limit=8, 
             max_execution_time=180,
             respect_context_window=True,
-            llm=gemini_llm
+            llm=llm
         )
 
     @agent
