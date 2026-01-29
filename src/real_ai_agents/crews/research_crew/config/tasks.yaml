@@ -5,15 +5,17 @@ scrape_listings:
     Find and scrape property listings matching the criteria: {search_criteria}.
 
     PHASE 1 - DISCOVERY & SEARCH:
-    1. Use Tavily Search to find property listings matching the criteria: {search_criteria}
+    1. Use Tavily Search tool to find property listings matching the criteria: {search_criteria}
        - Search for: "{search_criteria} listings" or "houses/apartments/hotels for rent in {search_criteria}"
     2. Do NOT restrict search to specific pre-defined platforms. Use whatever Tavily finds relevant.
-    3. Identify 4 promising property listing URLs from the search results.
+    3. Identify 10 promising property listing URLs from the search results.
        
     PHASE 2 - EXTRACTION:
-    1. For each identified listing URL, use Tavily Extract to get the page content.
-    2. Extract the complete property details from the raw content.
-    3. Document any pages that failed to load or were blocked.
+    1. Go through the 10 URLs one by one using Tavily Extract.
+    2. For each URL, check if the property matches the user's criteria (location, budget, type).
+    3. If it matches -> keep it. If not -> skip it and try the next URL.
+    4. STOP once you have 4 matching properties.
+    5. Document any pages that failed or were blocked.
 
     IMPORTANT:
     - STOP after collecting exactly 4 listings that match the user's criteria
