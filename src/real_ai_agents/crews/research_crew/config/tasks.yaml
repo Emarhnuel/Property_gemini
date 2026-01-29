@@ -27,6 +27,11 @@ scrape_listings:
     - Include the platform source and url for each listing
     - If a platform blocks access, note it and move to alternatives
     - If you cannot find 4 matching listings, return what you found
+
+    CRITICAL - MUST PRESERVE FIELDS (never drop these, even when summarizing):
+    - images: Array of ALL image URLs from Tavily response and extracted pages
+    - listing_url: The original property listing URL
+    - contact: Any phone numbers, emails, or agent names found
   expected_output: >
     A JSON object containing:
 
@@ -59,6 +64,7 @@ scrape_listings:
         {
           "listing_url": "https://zillow.com/...",
           "platform": "Zillow",
+          "images": ["https://example.com/image1.jpg", "https://example.com/image2.jpg"],
           "raw_content": "Full HTML/text content of the listing page...",
           "scraped_at": "2024-01-15T10:30:00Z",
           "scrape_status": "success"
@@ -130,6 +136,11 @@ extract_property_data:
     - Listing status (active, pending, etc.)
 
     Handle missing data gracefully by marking fields as null with extraction notes.
+
+    CRITICAL - MUST PRESERVE FIELDS (never drop these, even when summarizing):
+    - images: Array of ALL image URLs - this is MANDATORY, copy from input if available
+    - listing_url: The original property listing URL - MANDATORY
+    - contact: Phone numbers, emails, agent names - preserve ALL found
   expected_output: >
     A list of structured PropertyRecord objects containing:
     - images: array of {url, caption, is_primary}
