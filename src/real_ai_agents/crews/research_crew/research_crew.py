@@ -192,7 +192,7 @@ llm1 = LLM(
  
 
 gemini_llm = LLM(
-    model="gemini/gemini-3-flash-preview",
+    model="gemini/gemini-3-pro-preview",
     temperature=0.3,
 )
 
@@ -201,11 +201,10 @@ tavily_search = TavilySearchTool(
             search_depth="advanced",
             max_results=4,
             include_raw_content=True,
-            include_images=True
         )
         
 tavily_extractor = TavilyExtractorTool(
-            extract_depth="advanced",
+            extract_depth="advanced", 
             include_images=True
         )
 
@@ -238,7 +237,7 @@ class ResearchCrew:
             max_iter=10,
             # cache=True,
             respect_context_window=True, 
-            max_retry_limit=6,
+            max_retry_limit=8,
             max_execution_time=200,
             inject_date=True,
             date_format="%Y-%m-%d",
@@ -252,10 +251,12 @@ class ResearchCrew:
             config=self.agents_config["data_extractor"],  # type: ignore[index]
             verbose=True,
             max_iter=7,
-            max_retry_limit=6,
-            max_execution_time=120,
+            reasoning=True, 
+            max_reasoning_attempts=3, 
+            max_retry_limit=8, 
+            max_execution_time=180,
             respect_context_window=True,
-            llm=llm
+            llm=gemini_llm
         )
 
     @agent
@@ -265,7 +266,8 @@ class ResearchCrew:
             config=self.agents_config["validator"],  # type: ignore[index]
             verbose=True,
             max_iter=3,
-            max_retry_limit=3,
+            respect_context_window=False,
+            max_retry_limit=5,
             max_execution_time=100,
             llm=llm 
         )
@@ -277,9 +279,11 @@ class ResearchCrew:
             config=self.agents_config["report_agent"],  # type: ignore[index]
             verbose=True,
             max_iter=5,
-            respect_context_window=True,
-            max_retry_limit=3,
-            max_execution_time=120,
+            reasoning=True, 
+            max_reasoning_attempts=3, 
+            respect_context_window=False,
+            max_retry_limit=7,
+            max_execution_time=240,
             llm=llm1
         )
 
