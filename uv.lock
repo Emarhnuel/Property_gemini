@@ -644,7 +644,7 @@ wheels = [
 
 [[package]]
 name = "crewai"
-version = "1.8.1"
+version = "1.9.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiosqlite" },
@@ -673,9 +673,9 @@ dependencies = [
     { name = "tomli-w" },
     { name = "uv" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c9/54/ce424c05b15c0806bb96ff375a117234225b2b02efbf3d96f364be85c9b9/crewai-1.8.1.tar.gz", hash = "sha256:e77fa89948537ffd19da502e5b3fb56d293c5c9dd5228909b50e66e8edfe89fd", size = 3789773, upload-time = "2026-01-15T05:28:14.402Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c9/fd/47b3f2d1637e812b280583d8cdaf73f772560de4be4457a1e71e62597a09/crewai-1.9.2.tar.gz", hash = "sha256:b83e2b95de6deaded30a22b9cea442de7bbe025f13a8a5af83db8291ba4c36d3", size = 6865408, upload-time = "2026-01-29T01:22:11.842Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/1c/23/9ff50319b74d871709895d2b62938efc4379d9136264e73d3c934c3d6c41/crewai-1.8.1-py3-none-any.whl", hash = "sha256:9dac8f66a3492679e2742a5eee3cd6b986bf16f4accb613b140f539c832ef47f", size = 709958, upload-time = "2026-01-15T05:28:12.759Z" },
+    { url = "https://files.pythonhosted.org/packages/a1/de/0efab3b6798476f9d59919465000e529b8c1b13b142d16e6c1ed7e5186c4/crewai-1.9.2-py3-none-any.whl", hash = "sha256:1320f2eadb3b00aa34f728c1c74bd2029a1053a4320cfb7f10cecafe26cfd9cc", size = 769805, upload-time = "2026-01-29T01:22:09.569Z" },
 ]
 
 [package.optional-dependencies]
@@ -685,7 +685,7 @@ tools = [
 
 [[package]]
 name = "crewai-tools"
-version = "1.8.1"
+version = "1.9.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "beautifulsoup4" },
@@ -699,9 +699,9 @@ dependencies = [
     { name = "tiktoken" },
     { name = "youtube-transcript-api" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/44/1d/d791adf82d609bca32dd1ed17ac7df84be11270f5b22c18b87a5b70a839e/crewai_tools-1.8.1.tar.gz", hash = "sha256:7a992bcef08a71409238053bd0af96be2c3d59bd0d3f69a17b26f5d7556c21b9", size = 806592, upload-time = "2026-01-15T05:28:17.248Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d4/32/e097b33fd4dc5c642501a2609dd048935ee9862064bc6a04e53c584a6dc3/crewai_tools-1.9.2.tar.gz", hash = "sha256:34f378157ccd7eefa29c5a341474ae7175543b2aa604b8b9a1bd482308e7ad8e", size = 802657, upload-time = "2026-01-29T01:22:19.059Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/45/f8/bf6d735c30b89b846a251cb146627dac73af778132841d7529e25bdf29a7/crewai_tools-1.8.1-py3-none-any.whl", hash = "sha256:420d8163ef34c612caec3c66a936dd9a79afb4d2b876db2171805b0db2361c69", size = 766789, upload-time = "2026-01-15T05:28:15.637Z" },
+    { url = "https://files.pythonhosted.org/packages/b1/b9/14c979a382a2d4689b960de5f42aab4133977bac58dcff1acf75c43e6a6e/crewai_tools-1.9.2-py3-none-any.whl", hash = "sha256:aaaee542a92e6cb13e25a9021d67f41a5c884ad2bd5c5cc5b27f7d2fc9a7723d", size = 763913, upload-time = "2026-01-29T01:22:17.023Z" },
 ]
 
 [[package]]
@@ -1837,7 +1837,7 @@ wheels = [
 
 [[package]]
 name = "mcp"
-version = "1.16.0"
+version = "1.23.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
@@ -1846,15 +1846,18 @@ dependencies = [
     { name = "jsonschema" },
     { name = "pydantic" },
     { name = "pydantic-settings" },
+    { name = "pyjwt", extra = ["crypto"] },
     { name = "python-multipart" },
     { name = "pywin32", marker = "sys_platform == 'win32'" },
     { name = "sse-starlette" },
     { name = "starlette" },
+    { name = "typing-extensions" },
+    { name = "typing-inspection" },
     { name = "uvicorn", marker = "sys_platform != 'emscripten'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/3d/a1/b1f328da3b153683d2ec34f849b4b6eac2790fb240e3aef06ff2fab3df9d/mcp-1.16.0.tar.gz", hash = "sha256:39b8ca25460c578ee2cdad33feeea122694cfdf73eef58bee76c42f6ef0589df", size = 472918, upload-time = "2025-10-02T16:58:20.631Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a7/a4/d06a303f45997e266f2c228081abe299bbcba216cb806128e2e49095d25f/mcp-1.23.3.tar.gz", hash = "sha256:b3b0da2cc949950ce1259c7bfc1b081905a51916fcd7c8182125b85e70825201", size = 600697, upload-time = "2025-12-09T16:04:37.351Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c9/0e/7cebc88e17daf94ebe28c95633af595ccb2864dc2ee7abd75542d98495cc/mcp-1.16.0-py3-none-any.whl", hash = "sha256:ec917be9a5d31b09ba331e1768aa576e0af45470d657a0319996a20a57d7d633", size = 167266, upload-time = "2025-10-02T16:58:19.039Z" },
+    { url = "https://files.pythonhosted.org/packages/32/c6/13c1a26b47b3f3a3b480783001ada4268917c9f42d78a079c336da2e75e5/mcp-1.23.3-py3-none-any.whl", hash = "sha256:32768af4b46a1b4f7df34e2bfdf5c6011e7b63d7f1b0e321d0fdef4cd6082031", size = 231570, upload-time = "2025-12-09T16:04:35.56Z" },
 ]
 
 [[package]]
@@ -3067,11 +3070,16 @@ wheels = [
 
 [[package]]
 name = "pyjwt"
-version = "2.9.0"
+version = "2.10.1"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/fb/68/ce067f09fca4abeca8771fe667d89cc347d1e99da3e093112ac329c6020e/pyjwt-2.9.0.tar.gz", hash = "sha256:7e1e5b56cc735432a7369cbfa0efe50fa113ebecdc04ae6922deba8b84582d0c", size = 78825, upload-time = "2024-08-01T15:01:08.445Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e7/46/bd74733ff231675599650d3e47f361794b22ef3e3770998dda30d3b63726/pyjwt-2.10.1.tar.gz", hash = "sha256:3cc5772eb20009233caf06e9d8a0577824723b44e6648ee0a2aedb6cf9381953", size = 87785, upload-time = "2024-11-28T03:43:29.933Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/79/84/0fdf9b18ba31d69877bd39c9cd6052b47f3761e9910c15de788e519f079f/PyJWT-2.9.0-py3-none-any.whl", hash = "sha256:3b02fb0f44517787776cf48f2ae25d8e14f300e6d7545a4315cee571a415e850", size = 22344, upload-time = "2024-08-01T15:01:06.481Z" },
+    { url = "https://files.pythonhosted.org/packages/61/ad/689f02752eeec26aed679477e80e632ef1b682313be70793d798c1d5fc8f/PyJWT-2.10.1-py3-none-any.whl", hash = "sha256:dcdd193e30abefd5debf142f9adfcdd2b58004e644f25406ffaebd50bd98dacb", size = 22997, upload-time = "2024-11-28T03:43:27.893Z" },
+]
+
+[package.optional-dependencies]
+crypto = [
+    { name = "cryptography" },
 ]
 
 [[package]]
@@ -3319,7 +3327,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "crewai", extras = ["tools"], specifier = "==1.8.1" },
+    { name = "crewai", extras = ["tools"], specifier = "==1.9.2" },
     { name = "google-genai", specifier = ">=1.60.0" },
     { name = "litellm", specifier = ">=1.75.3" },
     { name = "matplotlib", specifier = ">=3.10.8" },
