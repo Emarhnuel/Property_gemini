@@ -1,38 +1,11 @@
 {
   "metadata": {
-    "search_criteria": null,
+    "search_criteria": "No search criteria provided - extraction stage received empty input",
     "generated_at": "2024-01-15T10:30:00Z",
     "total_found": 1,
-    "total_validated": 1
+    "total_validated": 0
   },
-  "properties": [
-    {
-      "id": "prop_001",
-      "display_title": "Spacious 2BR Apartment in Broadway, NYC",
-      "price_display": "$2,850/month",
-      "location_display": "123 Broadway, New York, NY",
-      "primary_image": "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
-      "all_images": [
-        "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
-        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
-        "https://images.unsplash.com/photo-1560448204-603b3fc33ddc?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
-        "https://images.unsplash.com/photo-1560448204-603b3fc33ddc?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80"
-      ],
-      "specs": {
-        "bedrooms": 2,
-        "bathrooms": 1,
-        "sqft": 850,
-        "type": "apartment"
-      },
-      "contact": {
-        "name": "Sarah Johnson",
-        "phone": "(212) 555-0147",
-        "email": "sarah.johnson@nycapartments.com",
-        "company": "NYC Premier Realty"
-      },
-      "listing_url": "https://www.nycapartments.com/listing/123-broadway-2br"
-    }
-  ],
+  "properties": [],
   "issues": {
     "properties_with_no_contact": [],
     "properties_with_no_images": [],
