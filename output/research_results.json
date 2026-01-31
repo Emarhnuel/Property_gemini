@@ -1,14 +1,143 @@
+```json
 {
   "metadata": {
-    "search_criteria": "No search criteria provided - extraction stage received empty input",
-    "generated_at": "2024-01-15T10:30:00Z",
-    "total_found": 1,
-    "total_validated": 0
+    "search_criteria": "Broadway, NY",
+    "generated_at": "2023-10-27T10:00:00Z",
+    "total_found": 6,
+    "total_validated": 6
   },
-  "properties": [],
+  "properties": [
+    {
+      "id": "prop_001",
+      "display_title": "425 W Broadway APT 5C",
+      "price_display": "$4,000/mo",
+      "location_display": "New York, NY 10012",
+      "primary_image": null,
+      "all_images": [],
+      "specs": {
+        "beds": 2,
+        "baths": 1,
+        "sqft": null,
+        "type": null
+      },
+      "contact": {
+        "name": "Mario",
+        "phone": null,
+        "email": null
+      },
+      "listing_url": "https://www.zillow.com/homedetails/425-W-Broadway-APT-5C-New-York-NY-10012/2122187221_zpid/",
+      "quality_score": 65
+    },
+    {
+      "id": "prop_002",
+      "display_title": "230 Broadway APT 2B",
+      "price_display": "$4,000/mo",
+      "location_display": "Brooklyn, NY 11211",
+      "primary_image": null,
+      "all_images": [],
+      "specs": {
+        "beds": 2,
+        "baths": 1,
+        "sqft": 800,
+        "type": "Apartment"
+      },
+      "contact": null,
+      "listing_url": "https://www.zillow.com/homedetails/230-Broadway-APT-2B-Brooklyn-NY-11211/2098073706_zpid/",
+      "quality_score": 60
+    },
+    {
+      "id": "prop_003",
+      "display_title": "230 Broadway #2F",
+      "price_display": "$4,000/mo",
+      "location_display": "Brooklyn, NY 11211",
+      "primary_image": null,
+      "all_images": [],
+      "specs": {
+        "beds": 2,
+        "baths": 1,
+        "sqft": 800,
+        "type": "Apartment"
+      },
+      "contact": null,
+      "listing_url": "https://www.zillow.com/homedetails/230-Broadway-2F-Brooklyn-NY-11211/459753190_zpid/",
+      "quality_score": 60
+    },
+    {
+      "id": "prop_004",
+      "display_title": "1595 Broadway #4B",
+      "price_display": "$2,685/mo",
+      "location_display": "Brooklyn, NY 11207",
+      "primary_image": null,
+      "all_images": [],
+      "specs": {
+        "beds": 2,
+        "baths": 1,
+        "sqft": null,
+        "type": null
+      },
+      "contact": null,
+      "listing_url": "https://www.zillow.com/homedetails/1595-Broadway-4B-Brooklyn-NY-11207/446987688_zpid/",
+      "quality_score": 60
+    },
+    {
+      "id": "prop_005",
+      "display_title": "3157 Broadway Apt 1",
+      "price_display": "$1,925/mo",
+      "location_display": "New York, NY 10027",
+      "primary_image": null,
+      "all_images": [],
+      "specs": {
+        "beds": 2,
+        "baths": 1,
+        "sqft": null,
+        "type": null
+      },
+      "contact": null,
+      "listing_url": "https://www.realtor.com/realestateandhomes-detail/3157-Broadway-Apt-1_New-York_NY_10027_M48519-74090",
+      "quality_score": 60
+    },
+    {
+      "id": "prop_006",
+      "display_title": "2532 Broadway Unit 2-W",
+      "price_display": "Inquire for Price",
+      "location_display": "New York, NY 10025",
+      "primary_image": null,
+      "all_images": [],
+      "specs": {
+        "beds": 1,
+        "baths": 1,
+        "sqft": null,
+        "type": null
+      },
+      "contact": null,
+      "listing_url": "https://www.apartments.com/2532-broadway-new-york-ny-unit-2-w/lpgf7mf",
+      "quality_score": 40
+    }
+  ],
   "issues": {
-    "properties_with_no_contact": [],
-    "properties_with_no_images": [],
-    "properties_flagged": []
+    "properties_with_no_contact": [
+      "prop_002",
+      "prop_003",
+      "prop_004",
+      "prop_005",
+      "prop_006"
+    ],
+    "properties_with_no_images": [
+      "prop_001",
+      "prop_002",
+      "prop_003",
+      "prop_004",
+      "prop_005",
+      "prop_006"
+    ],
+    "properties_flagged": [
+      "prop_001",
+      "prop_002",
+      "prop_003",
+      "prop_004",
+      "prop_005",
+      "prop_006"
+    ]
   }
 }
+```
