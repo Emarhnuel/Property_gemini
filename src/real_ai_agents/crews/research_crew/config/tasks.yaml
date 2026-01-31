@@ -1,280 +1,219 @@
-# Research Agent Crew Tasks - Sequential Process
+# ================================
+# Research Agent Crew Tasks
+# Optimized for Low Token Usage
+# ================================
 
-scrape_listings:
+
+search_listings:
   description: >
-    Find and scrape property listings matching the criteria: {search_criteria}.
+    Use Tavily Search Tool to find REAL property listing URLs that match
+    the user's search criteria exactly.
 
-    PHASE 1 - DISCOVERY & SEARCH:
-    1. Use Tavily Search tool to find property listings matching the criteria: {search_criteria}
-       - Search for: "{search_criteria} listings" or "houses/apartments/hotels for rent in {search_criteria}"
-    2. Do NOT restrict search to specific pre-defined platforms. Use whatever Tavily finds relevant.
-    3. Identify 10 promising property listing URLs from the search results.
-       
-    PHASE 2 - EXTRACTION:
-    1. Go through the 10 URLs one by one using Tavily Extract.
-    2. For each URL, check if the property matches the user's criteria (location, budget, type).
-    3. If it matches -> keep it. If not -> skip it and try the next URL.
-    4. STOP once you have 4 matching properties.
-    5. Document any pages that failed or were blocked.
+    Search intent example:
+    "2 bedroom house for rent in Massachusetts under $8000 monthly"
+
+    RULES (STRICT):
+    - You MUST use Tavily Search Tool
+    - Query format:
+      "{search_criteria} site:zillow.com OR site:realtor.com OR site:apartments.com"
+    - Only return URLs that clearly represent:
+      - Individual property listing pages
+      - Rentals (not sales)
+    - DO NOT return:
+      - Search result pages
+      - Blog posts
+      - Category or filter pages
+    - Minimum 3 URLs, Maximum 6 URLs
+    - DO NOT invent or guess URLs
+
+    Relevance filtering:
+    - Prefer listings where preview/snippet indicates:
+      - Correct bedroom count (if provided)
+      - Rent price within budget (if visible)
+      - Correct location (city/state)
+
+  expected_output: >
+    {
+      "urls": [
+        "https://www.zillow.com/homedetails/...",
+        "https://www.realtor.com/realestateandhomes-detail/..."
+      ],
+      "platforms": ["zillow", "realtor"]
+    }
+
+  agent: scraper
+  tool_choice: required
+
+extract_listings:
+  description: >
+    For EACH URL provided from `search_listings`, use Tavily Extract Tool
+    to scrape the page and IMMEDIATELY extract structured rental data.
 
     IMPORTANT:
-    - STOP after collecting exactly 4 listings that match the user's criteria
-    - Do NOT continue scraping once you have 4 valid listings
-    - Do NOT scrape from social media (Facebook, Instagram, Twitter, WhatsApp groups)
-    - Only use dedicated property/hospitality websites found via Tavily Search
-    - Check the date_listed or date_updated field for each property
-    - SKIP properties listed more than 5 months ago from today's date
-    - If no date is available, INCLUDE the property if it matches criteria
-    - Only count listings that match the search criteria (location, property type, budget)
-    - Include the platform source and url for each listing
-    - If a platform blocks access, note it and move to alternatives
-    - If you cannot find 4 matching listings, return what you found
+    - Raw HTML/text MUST NOT be returned
+    - Raw content should be read, parsed, and discarded in the same task
 
-    CRITICAL - MUST PRESERVE FIELDS (never drop these, even when summarizing):
-    - images: Array of ALL image URLs from Tavily response and extracted pages
-    - listing_url: The original property listing URL
-    - contact: Any phone numbers, emails, or agent names found
+    You MUST extract ONLY the following fields if present on the page.
+    If a field is missing, set it to null.
+
+    REQUIRED FIELDS PER LISTING:
+    - listing_url (original URL)
+    - platform (zillow, realtor, apartments, etc.)
+    - address (full address if available)
+    - price (numeric or string as shown)
+    - price_frequency (daily | weekly | monthly | yearly)
+    - bedrooms
+    - bathrooms
+    - description (trimmed, max ~300 words)
+    - images (ALL image URLs found on the page)
+    - facts_and_features (key-value or list: parking, pets, sqft, year built, etc.)
+    - contact:
+        - name
+        - phone
+        - email
+
+    IMAGE RULES:
+    - Return image URLs only
+    - No base64
+    - No captions required
+    - Empty array if none found
+
+    EXTRACTION RULES:
+    - Do NOT summarize creatively
+    - Do NOT infer or guess values
+    - Do NOT merge data across listings
+    - Skip pages that fail to load or block scraping
+
+    OUTPUT REQUIREMENTS:
+    - Return only clean structured JSON
+    - No raw_content
+    - No HTML
+    - No analysis text
+
   expected_output: >
-    A JSON object containing:
-
-    1. platforms_discovered: Array of platforms found and used
-    2. listings: Array of raw listing objects
-
-    Structure:
     {
-      "platforms_discovered": [
-        {
-          "name": "Zillow",
-          "url": "https://zillow.com",
-          "reason": "Top US real estate platform with extensive Austin listings",
-          "listings_found": 15
-        },
-        {
-          "name": "Austin MLS",
-          "url": "https://austinmls.com",
-          "reason": "Local MLS with exclusive listings",
-          "listings_found": 8
-        }
-      ],
-      "search_criteria_used": {
-        "location": "Austin, TX",
-        "property_type": "apartment",
-        "max_price": 2500,
-        "bedrooms": 2
-      },
       "listings": [
         {
-          "listing_url": "https://zillow.com/...",
-          "platform": "Zillow",
-          "images": ["https://example.com/image1.jpg", "https://example.com/image2.jpg"],
-          "raw_content": "Full HTML/text content of the listing page...",
-          "scraped_at": "2024-01-15T10:30:00Z",
-          "scrape_status": "success"
+          "listing_url": "https://...",
+          "platform": "zillow",
+          "address": "123 Main St, Boston, MA",
+          "price": "$7,500",
+          "price_frequency": "monthly",
+          "bedrooms": 2,
+          "bathrooms": 2,
+          "description": "...",
+          "images": [
+            "https://photos.zillowstatic.com/...",
+            "https://photos.zillowstatic.com/..."
+          ],
+          "facts_and_features": {
+            "sqft": 1400,
+            "parking": "Garage",
+            "pet_policy": "Pets allowed"
+          },
+          "contact": {
+            "name": "John Doe",
+            "phone": "617-555-1234",
+            "email": "agent@brokerage.com"
+          }
         }
       ],
-      "scrape_summary": {
-        "total_attempted": 25,
-        "successful": 23,
-        "failed": 2,
-        "failed_urls": ["https://...", "https://..."]
+      "summary": {
+        "attempted": 5,
+        "successful": 4,
+        "failed": 1
       }
     }
+
   agent: scraper
-
-extract_property_data:
-  description: >
-    Parse the raw listing data and extract comprehensive property information.
-
-    Required data to extract for each property:
-
-    PROPERTY IMAGES:
-    - All available image URLs (exterior, interior, rooms, amenities)
-    - Image captions/descriptions if available
-    - Primary/featured image identifier
-
-    PROPERTY DETAILS:
-    - Property title/headline
-    - Property type (apartment, house, duplex, condo, studio, etc.)
-    - Full address (street, city, state/region, postal code, country)
-    - Price (sale price or rent amount with currency)
-    - Price frequency for rentals (monthly, weekly, yearly)
-    - Bedrooms count
-    - Bathrooms count
-    - Square footage/meters
-    - Year built (if applicable)
-    - Parking spaces/garage info
-    - Furnished status
-    - Pet policy
-    - Price frequency: daily, weekly, monthly, or yearly
-    - Minimum stay (for shortlets/hotels)
-    - Check-in/Check-out times (for shortlets/hotels)
-    - Available date
-    - Lease terms (for rentals)
-
-    PROPERTY FEATURES:
-    - Amenities list (pool, gym, balcony, garden, etc.)
-    - Utilities included
-    - Security features
-    - Appliances included
-    - Special features (waterfront, mountain view, etc.)
-
-    PROPERTY DESCRIPTION:
-    - Full listing description text
-    - Neighborhood description if available
-
-    CONTACT INFORMATION:
-    - Agent/owner name
-    - Phone number(s)
-    - Email address
-    - Brokerage/agency name
-    - Agent photo URL if available
-
-    LISTING METADATA:
-    - Original listing URL
-    - Platform source (Zillow, Realtor, etc.)
-    - Listing ID on platform
-    - Date listed
-    - Days on market
-    - Listing status (active, pending, etc.)
-
-    Handle missing data gracefully by marking fields as null with extraction notes.
-
-    CRITICAL - MUST PRESERVE FIELDS (never drop these, even when summarizing):
-    - images: Array of ALL image URLs - this is MANDATORY, copy from input if available
-    - listing_url: The original property listing URL - MANDATORY
-    - contact: Phone numbers, emails, agent names - preserve ALL found
-  expected_output: >
-    A list of structured PropertyRecord objects containing:
-    - images: array of {url, caption, is_primary}
-    - details: {title, type, address, price, price_frequency, bedrooms, bathrooms, 
-      sqft, year_built, lot_size, parking, furnished, pet_policy, available_date, lease_terms}
-    - features: {amenities[], utilities[], security[], appliances[], special[]}
-    - description: {full_text, neighborhood}
-    - contact: {name, phone, email, brokerage, photo_url}
-    - metadata: {listing_url, platform, listing_id, date_listed, days_on_market, status}
-    - extraction_notes: any gaps or issues encountered
-  agent: data_extractor
   context:
-    - scrape_listings
+    - search_listings
+  tool_choice: required
 
 validate_data:
   description: >
-    Validate all extracted PropertyRecord objects for data quality and assign 
-    quality scores to each property.
+    Validate extracted rental listings for completeness and basic correctness.
 
-    VALIDATION CHECKLIST:
-    1. MANDATORY FIELDS (fail if missing):
-       - property_location/address (at minimum city required)
-       - price (any format, but must exist)
-       - At least ONE contact method (phone OR email OR listing URL)
+    VALIDATION CHECKS:
+    1. Mandatory:
+       - address OR listing_url
+       - price
+       - at least one of: phone or email
+    2. Logical:
+       - Bedrooms and bathrooms must be positive integers if present
+       - Price must be within $100 – $100,000
+       - Image URLs must start with http/https
+    3. Assign quality_score (0–100):
+       - 90–100: Complete and clean
+       - 70–89: Minor missing fields
+       - 50–69: Multiple gaps
+       - <50: Critical issues
 
-    2. PHONE NUMBER VALIDATION:
-       - Must be 7+ digits
-       - Can include +, -, (), spaces
-       - Flag but don't reject unusual formats
+    IMPORTANT:
+    - Do NOT remove listings
+    - Only flag issues
+    - Add validation_notes per listing if needed
 
-    3. URL VALIDATION:
-       - Must start with http:// or https://
-       - Image URLs should end in common extensions (.jpg, .png, .webp) or be CDN URLs
-
-    4. PRICE REASONABILITY:
-       - Flag prices under $100 (likely missing zeros)
-       - Flag prices over $100M (likely errors)
-       - Note currency if not USD
-
-    5. QUALITY SCORING (0-100):
-       - 100: All fields present, all validations pass
-       - 80-99: Minor issues (missing optional fields)
-       - 60-79: Some issues (1-2 validation warnings)
-       - 40-59: Significant issues (missing important fields)
-       - 0-39: Critical issues (missing mandatory fields)
-
-    IMPORTANT: Do NOT remove properties with issues. Flag them and let the human decide.
   expected_output: >
-    A JSON array of validated PropertyRecord objects, each with added fields:
-    - quality_score: Integer 0-100
-    - validation_status: "pass" | "warning" | "fail"
-    - validation_notes: Array of specific issues found
-    - is_actionable: Boolean (true if has enough data to contact agent)
+    {
+      "listings": [
+        {
+          "...": "...",
+          "quality_score": 92,
+          "validation_notes": []
+        }
+      ],
+      "summary": {
+        "total": 4,
+        "passed": 3,
+        "flagged": 1
+      }
+    }
 
-    Plus a summary object:
-    - total_properties: count
-    - passed: count with score >= 80
-    - warnings: count with score 40-79
-    - failed: count with score < 40
-    - common_issues: array of most frequent problems
   agent: validator
   context:
-    - extract_property_data
+    - extract_listings
 
 compile_research_report:
   description: >
-    Compile all validated property records into a final JSON report optimized 
-    for the frontend Human Decision Gate interface.
+    Compile validated rental listings into a frontend-ready JSON report
+    for human review and approval.
+
+    REQUIREMENTS:
+    - Snake_case keys
+    - Stable property IDs (prop_001, prop_002, ...)
+    - Sorted by quality_score DESC
+    - No empty objects (use null or empty arrays)
 
     REPORT STRUCTURE:
-    1. METADATA section:
-       - search_criteria: Original search parameters
-       - generated_at: ISO timestamp
-       - total_found: Number of properties scraped
-       - total_validated: Number passing validation
-       - quality_summary: Breakdown by quality tier
+    1. metadata:
+       - search_criteria
+       - generated_at
+       - total_found
+       - total_validated
+    2. properties:
+       - id
+       - display_title
+       - price_display
+       - location_display
+       - primary_image
+       - all_images
+       - specs (beds, baths, sqft, type)
+       - contact
+       - listing_url
+       - quality_score
+    3. issues:
+       - properties_with_no_contact
+       - properties_with_no_images
+       - properties_flagged
 
-    2. PROPERTIES array (sorted by quality_score descending):
-       Each property should have:
-       - id: Unique identifier for frontend reference
-       - display_title: Clean title for UI card
-       - price_display: Formatted price with currency (e.g., "$2,500/month")
-       - location_display: Clean address for UI
-       - primary_image: Single URL for card thumbnail
-       - all_images: Array of all image URLs
-       - specs: {bedrooms, bathrooms, sqft, type}
-       - contact: {name, phone, email, company}
-       - listing_url: Link to original listing
-       - quality_score: From validation
-       - quality_notes: Human-readable issues summary
-
-    3. ISSUES section:
-       - properties_with_no_contact: List of property IDs
-       - properties_with_no_images: List of property IDs
-       - properties_flagged: List with reasons
-
-    FORMAT REQUIREMENTS:
-    - All prices formatted with currency symbol
-    - All dates in ISO format
-    - Empty arrays [] instead of null for missing lists
-    - Consistent field names (snake_case)
   expected_output: >
-    A single JSON object ready for frontend consumption:
     {
-      "metadata": {
-        "search_criteria": "...",
-        "generated_at": "2024-01-15T10:30:00Z",
-        "total_found": 25,
-        "total_validated": 22,
-        "quality_summary": {"excellent": 10, "good": 8, "fair": 4}
-      },
-      "properties": [
-        {
-          "id": "prop_001",
-          "display_title": "Modern 2BR Apartment in Downtown",
-          "price_display": "$2,500/month",
-          "location_display": "123 Main St, Austin, TX",
-          "primary_image": "https://...",
-          "all_images": ["https://..."],
-          "specs": {"bedrooms": 2, "bathrooms": 1, "sqft": 950, "type": "apartment"},
-          "contact": {"name": "John Agent", "phone": "+1-555-0123", "email": "...", "company": "Realty Co"},
-          "listing_url": "https://zillow.com/...",
-          "quality_score": 95,
-          "quality_notes": "Complete listing"
-        }
-      ],
-      "issues": {
-        "properties_with_no_contact": [],
-        "properties_with_no_images": ["prop_015"],
-        "properties_flagged": []
-      }
+      "metadata": { ... },
+      "properties": [ ... ],
+      "issues": { ... }
     }
+
   agent: report_agent
   context:
     - validate_data
