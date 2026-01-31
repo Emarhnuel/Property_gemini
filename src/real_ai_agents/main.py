@@ -9,6 +9,8 @@ Orchestrates the real estate workflow with human-in-the-loop:
 4. Design Phase - Generate AI-powered room redesigns
 """
 
+
+
 import json
 from typing import List, Optional
 from pydantic import BaseModel, Field
@@ -20,6 +22,18 @@ from crewai.flow.human_feedback import human_feedback, HumanFeedbackResult
 from real_ai_agents.crews.research_crew.research_crew import ResearchCrew
 from real_ai_agents.crews.location_analyzer_crew.location_analyzer_crew import LocationAnalyzerCrew
 from real_ai_agents.crews.interior_design_crew.interior_design_crew import InteriorDesignCrew
+
+# ============== DEBUG HOOK: Log all tool calls ==============
+import crewai.tools.tool_usage as tool_module
+
+_original_call = tool_module.ToolUsage._render
+
+def debug_tool_run(self, *args, **kwargs):
+    print(f"\n🔧 TOOL CALLED: {self.tools_handler.tools}")
+    return _original_call(self, *args, **kwargs)
+
+tool_module.ToolUsage._render = debug_tool_run
+# =============================================================
 
 
 class SearchCriteria(BaseModel):
@@ -48,11 +62,11 @@ class RealEstateState(BaseModel):
     properties_found: int = 0
     properties_approved: int = 0
     properties_analyzed: int = 0
-    rooms_redesigned: int = 0
+    rooms_redesigned: int = 0 
 
 
 @persist()
-class RealEstateFlow(Flow[RealEstateState]):
+class RealEstateFlow(Flow[RealEstateState]): 
     """AI Real Estate Agent Flow with human-in-the-loop property approval."""
 
     @start()
@@ -70,7 +84,7 @@ class RealEstateFlow(Flow[RealEstateState]):
                 location="Broadway, New York, USA",
                 property_type="apartment", 
                 bedrooms=2,
-                max_price=2900,
+                max_price=4000,
                 rent_frequency="monthly"
             )
         
