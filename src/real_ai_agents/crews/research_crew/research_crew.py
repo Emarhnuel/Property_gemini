@@ -80,7 +80,7 @@ def validate_extract_used(result: TaskOutput) -> Tuple[bool, Any]:
 
 
 # =======================
-# LLM CONFIG (Gemini Tier-1 Safe)
+# LLM CONFIG
 # =======================
 
 
@@ -148,8 +148,8 @@ class ResearchCrew:
             tools=[tavily_search, tavily_extract],
             verbose=False,              # logs cost tokens
             allow_delegation=False,
-            max_iter=1,                 # single shot
-            max_retry_limit=2,          # fail fast
+            max_iter=4,                 # single shot
+            max_retry_limit=6,          # fail fast
             inject_date=True,
             date_format="%Y-%m-%d",
             respect_context_window=True,
@@ -162,8 +162,8 @@ class ResearchCrew:
             config=self.agents_config["validator"],
             llm=validator_llm,
             verbose=True,
-            max_iter=2,
-            max_retry_limit=4,
+            max_iter=4,
+            max_retry_limit=6,
             respect_context_window=False,
         )
 
@@ -174,8 +174,8 @@ class ResearchCrew:
             config=self.agents_config["report_agent"],
             llm=gemini_pro_report_llm,
             verbose=False,
-            max_iter=1,
-            max_retry_limit=1,
+            max_iter=4,
+            max_retry_limit=6,
             respect_context_window=True,
         )
 
