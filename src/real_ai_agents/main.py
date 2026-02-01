@@ -84,7 +84,7 @@ class RealEstateFlow(Flow[RealEstateState]):
                 location="Broadway, New York, USA",
                 property_type="apartment", 
                 bedrooms=2,
-                max_price=4000,
+                max_price=6000,
                 rent_frequency="monthly"
             )
         
