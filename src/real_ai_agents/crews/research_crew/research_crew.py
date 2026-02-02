@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from crewai import Agent, Crew, Process, Task, LLM
 from crewai.project import CrewBase, agent, crew, task
 from crewai.tasks.task_output import TaskOutput
-from crewai_tools import TavilySearchTool, TavilyExtractorTool
+from crewai_tools import TavilySearchTool
 
 
 # =======================
@@ -31,8 +31,8 @@ class ExtractedListing(BaseModel):
     address: Optional[str] = None
     price: Optional[Any] = None
     price_frequency: Optional[str] = None
-    bedrooms: Optional[int] = None
-    bathrooms: Optional[int] = None
+    bedrooms: Optional[float] = None
+    bathrooms: Optional[float] = None
     description: Optional[str] = None
     images: List[str] = []
     facts_and_features: Optional[dict] = None
@@ -87,7 +87,7 @@ def validate_extract_used(result: TaskOutput) -> Tuple[bool, Any]:
 gemini_flash_scraper_llm = LLM(
     model="gemini/gemini-3-flash-preview",
     temperature=0.0,
-    max_tokens=8000,  # small hard cap
+    max_tokens=20000,  # small hard cap
     top_p=0.9,
 )
 
@@ -95,7 +95,7 @@ gemini_flash_scraper_llm = LLM(
 gemini_pro_report_llm = LLM(
     model="gemini/gemini-3-pro-preview",
     temperature=0.0,
-    max_tokens=8000,  # avoid huge outputs
+    max_tokens=20000,  # avoid huge outputs
     top_p=0.9,
 )
 
@@ -119,10 +119,6 @@ tavily_search = TavilySearchTool(
     include_raw_content=False,  # NEVER include raw content
 )
 
-tavily_extract = TavilyExtractorTool(
-    extract_depth="advanced",
-    include_images=True,
-)
 
 
 # =======================
@@ -141,15 +137,29 @@ class ResearchCrew:
 
     @agent
     def scraper(self) -> Agent:
-        """Scraper agent using Gemini Flash - single-shot, token-safe."""
+        """Scraper agent using Gemini Pro - specialized for URL discovery."""
         return Agent(
             config=self.agents_config["scraper"],
             llm=gemini_flash_scraper_llm,
-            tools=[tavily_search, tavily_extract],
-            verbose=False,              # logs cost tokens
+            tools=[tavily_search],
+            verbose=False,
             allow_delegation=False,
-            max_iter=4,                 # single shot
-            max_retry_limit=6,          # fail fast
+            max_iter=4,
+            max_retry_limit=6,
+            respect_context_window=True,
+        )
+
+    @agent
+    def extractor(self) -> Agent:
+        """Extractor agent using Gemini Pro - specialized for data extraction."""
+        return Agent(
+            config=self.agents_config["extractor"],
+            llm=gemini_pro_report_llm,
+            tools=[tavily_extract],
+            verbose=False,
+            allow_delegation=False,
+            max_iter=4,
+            max_retry_limit=6,
             inject_date=True,
             date_format="%Y-%m-%d",
             respect_context_window=True,
@@ -172,7 +182,7 @@ class ResearchCrew:
         """Report agent using Gemini Flash - formatting only."""
         return Agent(
             config=self.agents_config["report_agent"],
-            llm=gemini_pro_report_llm,
+            llm=gemini_flash_scraper_llm,
             verbose=False,
             max_iter=4,
             max_retry_limit=6,
