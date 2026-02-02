@@ -3,7 +3,6 @@
 # Optimized for Low Token Usage
 # ================================
 
-
 search_listings:
   description: >
     Use Tavily Search Tool to find REAL property listing URLs that match
@@ -26,6 +25,16 @@ search_listings:
     - Minimum 3 URLs, Maximum 6 URLs
     - DO NOT invent or guess URLs
 
+    OUTPUT FORMAT (CRITICAL):
+    - Your output MUST be a valid JSON object with exactly two root keys: "urls" and "platforms".
+    - DO NOT wrap the output in markdown code blocks (e.g., ```json ... ```). Output raw JSON only.
+    - DO NOT nest the response under a "properties" key.
+    - Example:
+      {
+        "urls": ["https://url1...", "https://url2..."],
+        "platforms": ["zillow", "realtor"]
+      }
+
     Relevance filtering:
     - Prefer listings where preview/snippet indicates:
       - Correct bedroom count (if provided)
@@ -46,15 +55,19 @@ search_listings:
 
 extract_listings:
   description: >
-    For EACH URL provided from `search_listings`, use Tavily Extract Tool
-    to scrape the page and IMMEDIATELY extract structured rental data.
+    For EACH URL provided from `search_listings`, use a REAL BROWSER
+    automation tool to open the listing page and extract rendered rental data.
 
-    IMPORTANT:
-    - Raw HTML/text MUST NOT be returned
-    - Raw content should be read, parsed, and discarded in the same task
+    You MUST use the `browser_task` MCP tool.
 
-    You MUST extract ONLY the following fields if present on the page.
-    If a field is missing, set it to null.
+    BROWSER INSTRUCTIONS (STRICT):
+    - Open the listing URL in a real browser
+    - Wait for JavaScript to fully load
+    - Scroll the page if needed to reveal content
+    - Extract ONLY rendered content (not raw HTML)
+    - If the page is blocked, retry once before skipping
+    - Do NOT use API-based scraping tools
+    - Do NOT infer or fabricate missing values
 
     REQUIRED FIELDS PER LISTING:
     - listing_url (original URL)
@@ -66,7 +79,7 @@ extract_listings:
     - bathrooms
     - description (trimmed, max ~300 words)
     - images (ALL image URLs found on the page)
-    - facts_and_features (key-value or list: parking, pets, sqft, year built, etc.)
+    - facts_and_features (parking, pets, sqft, year built, etc.)
     - contact:
         - name
         - phone
@@ -75,20 +88,13 @@ extract_listings:
     IMAGE RULES:
     - Return image URLs only
     - No base64
-    - No captions required
     - Empty array if none found
 
-    EXTRACTION RULES:
-    - Do NOT summarize creatively
-    - Do NOT infer or guess values
-    - Do NOT merge data across listings
-    - Skip pages that fail to load or block scraping
-
-    OUTPUT REQUIREMENTS:
-    - Return only clean structured JSON
-    - No raw_content
-    - No HTML
-    - No analysis text
+    OUTPUT RULES:
+    - Return ONLY clean structured JSON
+    - No raw HTML
+    - No markdown
+    - No explanations
 
   expected_output: >
     {
@@ -96,25 +102,23 @@ extract_listings:
         {
           "listing_url": "https://...",
           "platform": "zillow",
-          "address": "123 Main St, Boston, MA",
-          "price": "$7,500",
+          "address": "123 Main St, New York, NY",
+          "price": "$6,000",
           "price_frequency": "monthly",
           "bedrooms": 2,
           "bathrooms": 2,
           "description": "...",
           "images": [
-            "https://photos.zillowstatic.com/...",
             "https://photos.zillowstatic.com/..."
           ],
           "facts_and_features": {
-            "sqft": 1400,
-            "parking": "Garage",
-            "pet_policy": "Pets allowed"
+            "sqft": 1200,
+            "pets": "Allowed"
           },
           "contact": {
             "name": "John Doe",
-            "phone": "617-555-1234",
-            "email": "agent@brokerage.com"
+            "phone": "212-555-1234",
+            "email": "agent@example.com"
           }
         }
       ],
@@ -125,7 +129,7 @@ extract_listings:
       }
     }
 
-  agent: scraper
+  agent: extractor
   context:
     - search_listings
   tool_choice: required
