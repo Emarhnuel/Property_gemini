@@ -69,7 +69,7 @@ def validate_search_used(result: TaskOutput) -> Tuple[bool, Any]:
 
 
 def validate_extract_used(result: TaskOutput) -> Tuple[bool, Any]:
-    """Ensure Tavily Extract was actually called and no raw HTML leaked."""
+    """Ensure extraction output is valid and no raw HTML leaked"""
     raw = result.raw if isinstance(result.raw, str) else json.dumps(result.raw)
 
     if "listings" not in raw:
