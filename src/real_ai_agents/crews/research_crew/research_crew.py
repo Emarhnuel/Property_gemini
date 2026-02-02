@@ -198,7 +198,6 @@ class ResearchCrew:
         return Agent(
             config=self.agents_config["extractor"],
             llm=gemini_pro_report_llm,
-            tools=[tavily_extract_tool],
             verbose=False,
             allow_delegation=False,
             max_iter=4,
