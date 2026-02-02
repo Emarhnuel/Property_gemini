@@ -55,46 +55,58 @@ search_listings:
 
 extract_listings:
   description: >
-    For EACH URL provided from `search_listings`, use a REAL BROWSER
-    automation tool to open the listing page and extract rendered rental data.
+    For EACH URL provided from `search_listings`, use a REAL browser
+    automation session to extract rental listing data from the fully
+    rendered page.
 
-    You MUST use the `browser_task` MCP tool.
+    YOU MUST use the Browser Use MCP tool `browser_task`.
 
-    BROWSER INSTRUCTIONS (STRICT):
-    - Open the listing URL in a real browser
-    - Wait for JavaScript to fully load
-    - Scroll the page if needed to reveal content
-    - Extract ONLY rendered content (not raw HTML)
-    - If the page is blocked, retry once before skipping
-    - Do NOT use API-based scraping tools
-    - Do NOT infer or fabricate missing values
+    ABSOLUTE RULES (NON-NEGOTIABLE):
+    - You MUST open each listing URL in a real browser via `browser_task`
+    - You MUST wait for JavaScript to fully render
+    - You MUST extract data ONLY from what is visibly rendered
+    - You MUST NOT infer, guess, reconstruct, or reformat any values
+    - If a value is not explicitly visible, return null
+    - DO NOT "clean up" or rewrite tool output
+    - DO NOT fabricate Zillow CDN URLs
+
+    IMAGE EXTRACTION (CRITICAL):
+    - Collect image URLs ONLY from rendered <img src> attributes
+    - COPY image URLs VERBATIM exactly as observed in the browser
+    - Image URLs MUST:
+        - Be single-line strings
+        - Contain no whitespace or line breaks
+        - Match exactly what the browser returns
+    - NEVER reconstruct or approximate Zillow image URLs
+    - If no images are visible, return an empty array []
+
+    FAILURE HANDLING:
+    - If a page blocks loading, retry ONCE
+    - If still blocked, skip the listing and record it as failed
 
     REQUIRED FIELDS PER LISTING:
-    - listing_url (original URL)
+    - listing_url (original URL, verbatim)
     - platform (zillow, realtor, apartments, etc.)
-    - address (full address if available)
-    - price (numeric or string as shown)
+    - address (exact text as shown)
+    - price (exact string as shown)
     - price_frequency (daily | weekly | monthly | yearly)
     - bedrooms
     - bathrooms
-    - description (trimmed, max ~300 words)
-    - images (ALL image URLs found on the page)
-    - facts_and_features (parking, pets, sqft, year built, etc.)
+    - description (visible text only, max ~300 words)
+    - images (VERBATIM image URLs only)
+    - facts_and_features (only what is explicitly listed)
     - contact:
         - name
         - phone
         - email
 
-    IMAGE RULES:
-    - Return image URLs only
-    - No base64
-    - Empty array if none found
-
-    OUTPUT RULES:
-    - Return ONLY clean structured JSON
-    - No raw HTML
+    OUTPUT RULES (STRICT):
+    - Return ONLY valid JSON
     - No markdown
     - No explanations
+    - No HTML
+    - No wrapped strings
+    - No inferred values
 
   expected_output: >
     {
@@ -102,23 +114,22 @@ extract_listings:
         {
           "listing_url": "https://...",
           "platform": "zillow",
-          "address": "123 Main St, New York, NY",
-          "price": "$6,000",
+          "address": "4 Austin St #2, Somerville, MA 02145",
+          "price": "$3,200",
           "price_frequency": "monthly",
-          "bedrooms": 2,
-          "bathrooms": 2,
+          "bedrooms": 4,
+          "bathrooms": 1,
           "description": "...",
           "images": [
-            "https://photos.zillowstatic.com/..."
+            "https://photos.zillowstatic.com/fp/a0241d2b8f5b432d9262cdf7fbd86c2-cc_ft_960.jpg"
           ],
           "facts_and_features": {
-            "sqft": 1200,
-            "pets": "Allowed"
+            "sqft": 1300
           },
           "contact": {
-            "name": "John Doe",
-            "phone": "212-555-1234",
-            "email": "agent@example.com"
+            "name": "Property Manager",
+            "phone": "617-555-1234",
+            "email": "leasing@example.com"
           }
         }
       ],
@@ -133,6 +144,7 @@ extract_listings:
   context:
     - search_listings
   tool_choice: required
+
 
 validate_data:
   description: >
