@@ -61,11 +61,47 @@ class ValidateListingsOutput(BaseModel):
 # =======================
 
 def validate_search_used(result: TaskOutput) -> Tuple[bool, Any]:
-    """Ensure valid URLs were found."""
-    raw = result.raw if isinstance(result.raw, str) else json.dumps(result.raw)
-    if "http" not in raw:
-        return False, "No URLs detected — Tavily Search likely not used"
-    return True, result.raw
+    """
+    Enforces:
+    - Output is PURE JSON
+    - No instruction echoing
+    - No trailing characters
+    - Required keys exist
+    """
+    raw = result.raw
+
+    if not isinstance(raw, str):
+        return False, "Output is not a string"
+
+    raw = raw.strip()
+
+    # Must start and end with JSON object
+    if not raw.startswith("{") or not raw.endswith("}"):
+        return False, "Output is not pure JSON (extra text detected)"
+
+    try:
+        data = json.loads(raw)
+    except Exception as e:
+        return False, f"Invalid JSON: {e}"
+
+    # Required keys
+    if set(data.keys()) != {"urls", "platforms"}:
+        return False, "JSON must contain ONLY 'urls' and 'platforms' keys"
+
+    # URLs validation
+    if not isinstance(data["urls"], list) or len(data["urls"]) < 3:
+        return False, "At least 3 URLs are required"
+
+    if not all(isinstance(u, str) and u.startswith("http") for u in data["urls"]):
+        return False, "All URLs must be valid http(s) strings"
+
+    # Platform validation
+    allowed_platforms = {"zillow", "realtor", "apartments"}
+    if not all(p in allowed_platforms for p in data["platforms"]):
+        return False, "Invalid platform detected"
+
+    return True, data
+
 
 
 def validate_extract_used(result: TaskOutput) -> Tuple[bool, Any]:
