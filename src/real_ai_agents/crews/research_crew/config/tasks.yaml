@@ -5,41 +5,48 @@
 
 search_listings:
   description: >
-    Use Tavily Search Tool to find REAL property listing URLs that match
-    the user's search criteria exactly.
+    Use the Tavily Search tool to find REAL, individual rental property
+    listing URLs that match the user's search criteria exactly.
 
-    Search intent example:
+    SEARCH INTENT EXAMPLE:
     "2 bedroom house for rent in Massachusetts under $8000 monthly"
 
-    RULES (STRICT):
-    - You MUST use Tavily Search Tool
-    - Query format:
+    TOOL USAGE (MANDATORY):
+    - You MUST use the Tavily Search tool.
+    - You MUST construct the query using the following format ONLY:
       "{search_criteria} site:zillow.com OR site:realtor.com OR site:apartments.com"
-    - Only return URLs that clearly represent:
-      - Individual property listing pages
-      - Rentals (not sales)
+
+    URL SELECTION RULES (STRICT):
+    - Return ONLY URLs that point to individual rental listing pages.
+    - Listings MUST be rentals (not sales).
     - DO NOT return:
-      - Search result pages
-      - Blog posts
-      - Category or filter pages
-    - Minimum 3 URLs, Maximum 6 URLs
-    - DO NOT invent or guess URLs
+        - Search result pages
+        - Category pages
+        - Blog posts
+        - Market reports
+        - Aggregation pages
+    - Minimum: 3 URLs
+    - Maximum: 6 URLs
+    - NEVER invent, guess, or modify URLs.
 
-    OUTPUT FORMAT (CRITICAL):
-    - Your output MUST be a valid JSON object with exactly two root keys: "urls" and "platforms".
-    - DO NOT wrap the output in markdown code blocks (e.g., ```json ... ```). Output raw JSON only.
-    - DO NOT nest the response under a "properties" key.
-    - Example:
-      {
-        "urls": ["https://url1...", "https://url2..."],
-        "platforms": ["zillow", "realtor"]
-      }
+    OUTPUT FORMAT (ABSOLUTE):
+    - Your FINAL answer MUST contain ONLY a valid JSON object.
+    - The JSON MUST have EXACTLY two root keys: "urls" and "platforms".
+    - Do NOT include any text, explanations, comments, or instructions.
+    - Do NOT wrap the JSON in markdown code blocks.
+    - Do NOT repeat task instructions.
+    - Do NOT include trailing characters before or after the JSON.
 
-    Relevance filtering:
-    - Prefer listings where preview/snippet indicates:
-      - Correct bedroom count (if provided)
-      - Rent price within budget (if visible)
-      - Correct location (city/state)
+    JSON SCHEMA (STRICT):
+    {
+      "urls": ["https://..."],
+      "platforms": ["zillow", "realtor", "apartments"]
+    }
+
+    PLATFORM RULES:
+    - "platforms" must only include platforms that appear in "urls".
+    - Allowed values: "zillow", "realtor", "apartments".
+    - No duplicates.
 
   expected_output: >
     {
@@ -52,6 +59,7 @@ search_listings:
 
   agent: scraper
   tool_choice: required
+
 
 extract_listings:
   description: >
@@ -77,7 +85,7 @@ extract_listings:
         - Be single-line strings
         - Contain no whitespace or line breaks
         - Match exactly what the browser returns
-    - NEVER reconstruct or approximate Zillow image URLs
+    - NEVER reconstruct or approximate websites image URLs
     - If no images are visible, return an empty array []
 
     FAILURE HANDLING:
@@ -144,7 +152,6 @@ extract_listings:
   context:
     - search_listings
   tool_choice: required
-
 
 validate_data:
   description: >
