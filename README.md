@@ -20,6 +20,7 @@ Built with [CrewAI](https://crewai.com) and Google Gemini API.
 
 ### Tools
 - **Tavily Search**: For finding listings
+- **Browser Use MCP**: For extracting data from protected real estate sites
 - **Google Maps Platform**: For location analysis
 - **Gemini 2.5/3.0 Image API**: For interior design visualization
 
@@ -36,6 +37,7 @@ Built with [CrewAI](https://crewai.com) and Google Gemini API.
    GOOGLE_MAPS_API_KEY=AIza...
    GOOGLE_API_KEY=AIza...  # For Gemini Image Gen
    TAVILY_API_KEY=tvly-...
+   BROWSER_USE_API_KEY=bu-...  # For protected site extraction
    ```
 
 ## 🏃‍♂️ Usage
