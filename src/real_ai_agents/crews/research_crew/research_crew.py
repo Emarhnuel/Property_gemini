@@ -211,6 +211,7 @@ class ResearchCrew:
         ]
         )
 
+
     @agent
     def validator(self) -> Agent:
         """Validator agent using DeepSeek - cheap reasoning."""
