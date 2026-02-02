@@ -1,4 +1,4 @@
-from crewai_tools import TavilySearchTool, TavilyExtractorTool
+from crewai_tools import TavilySearchTool
 from crewai_tools import SerperDevTool
 
 # # Test TavilySearchTool with advanced search depth
