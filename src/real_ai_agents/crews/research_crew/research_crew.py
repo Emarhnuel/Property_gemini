@@ -95,10 +95,10 @@ def validate_search_used(result: TaskOutput) -> Tuple[bool, Any]:
     if not all(isinstance(u, str) and u.startswith("http") for u in data["urls"]):
         return False, "All URLs must be valid http(s) strings"
 
-    # Platform validation
-    allowed_platforms = {"zillow", "realtor", "apartments"}
-    if not all(p in allowed_platforms for p in data["platforms"]):
-        return False, "Invalid platform detected"
+    # Platform validation (zillow is blocked)
+    blocked_platforms = {"zillow"}
+    if any(p in blocked_platforms for p in data["platforms"]):
+        return False, "Zillow is blocked - do not include zillow URLs"
 
     return True, data
 
