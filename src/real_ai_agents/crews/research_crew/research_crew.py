@@ -6,6 +6,7 @@ from crewai import Agent, Crew, Process, Task, LLM
 from crewai.project import CrewBase, agent, crew, task
 from crewai.tasks.task_output import TaskOutput
 from crewai_tools import TavilySearchTool
+from real_ai_agents.tools.browser_use_tool import browser_extract_tool
 
 
 
@@ -118,23 +119,42 @@ def validate_extract_used(result: TaskOutput) -> Tuple[bool, Any]:
 
 
 
-def require_browser_use_mcp(result: TaskOutput):
+def browser_only_extraction_guardrail(result: TaskOutput) -> Tuple[bool, Any]:
     """
-    Enforce that Browser Use MCP (browser_task) was used.
+    Detects hallucinated (non-browser) extraction by enforcing
+    browser-only output signals with realistic thresholds.
     """
-    tool_calls = result.tools_used or []
+    raw = result.raw if isinstance(result.raw, str) else json.dumps(result.raw)
 
-    used_browser = any(
-        "browser_task" in tool.get("tool_name", "")
-        for tool in tool_calls
-    )
+    try:
+        data = json.loads(raw)
+    except Exception:
+        return False, "Invalid JSON output"
 
-    if not used_browser:
-        return False, "browser_task MCP tool was NOT used"
+    listings = data.get("listings", [])
+    if not listings:
+        return False, "No listings extracted"
+
+    for listing in listings:
+        images = listing.get("images", [])
+        description = listing.get("description", "") or ""
+        facts = listing.get("facts_and_features", {}) or {}
+
+        # Realistic browser-only signals
+        if len(images) < 2:
+            return False, "Too few images — likely not browser-extracted"
+
+        if len(description.split()) < 30:
+            return False, "Description too short — likely hallucinated"
+
+        if not isinstance(facts, dict) or len(facts.keys()) < 2:
+            return False, "Insufficient facts/features — likely not browser data"
+
+        # HTML leakage check
+        if "<html" in description.lower():
+            return False, "Raw HTML detected"
 
     return True, result.raw
-
-
 
 
 
@@ -167,6 +187,13 @@ validator_llm = LLM(
     max_tokens=9000,
 )
 
+# OpenAI for Extractor - compatible with Browser Use MCP tool schemas
+openai_extractor_llm = LLM(
+    model="openai/gpt-5-mini-2025-08-07",
+    temperature=0.0,
+    max_tokens=16000,
+)
+
 
 # =======================
 # TOOLS
@@ -177,6 +204,7 @@ tavily_search = TavilySearchTool(
     max_results=6,
     include_raw_content=False,  # NEVER include raw content
 )
+
 
 
 # =======================
@@ -209,10 +237,11 @@ class ResearchCrew:
 
     @agent
     def extractor(self) -> Agent:
-        """Extractor agent using Gemini Pro - specialized for data extraction."""
+        """Extractor agent using Gemini Pro with Browser Use Cloud tool."""
         return Agent(
             config=self.agents_config["extractor"],
-            llm=gemini_pro_report_llm,
+            llm=gemini_pro_report_llm,  # Gemini works with custom tool (no MCP schema issues)
+            tools=[browser_extract_tool],  # Custom Browser Use Cloud tool
             verbose=False,
             allow_delegation=False,
             max_iter=4,
@@ -220,9 +249,6 @@ class ResearchCrew:
             inject_date=True,
             date_format="%Y-%m-%d",
             respect_context_window=True,
-            mcps=[
-            "https://api.browser-use.com/mcp?api_key=${BROWSER_USE_API_KEY}"
-        ]
         )
 
 
@@ -268,7 +294,7 @@ class ResearchCrew:
         return Task(
             config=self.tasks_config["extract_listings"],
             output_json=ExtractListingsOutput,
-            guardrail=require_browser_use_mcp,
+            guardrail=browser_only_extraction_guardrail,
             guardrail_max_retries=2,
         )
 
