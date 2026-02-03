@@ -1,131 +1,127 @@
 ```json
 {
   "metadata": {
-    "search_criteria": "Boston Area Residential Rentals",
-    "generated_at": "2023-10-27T14:30:00Z",
-    "total_found": 5,
-    "total_validated": 5
+    "search_criteria": "Boston, MA Rental Market Search",
+    "generated_at": "2023-10-27T10:00:00Z",
+    "total_found": 4,
+    "total_validated": 4
   },
   "properties": [
     {
       "id": "prop_001",
-      "display_title": "652 Massachusetts Ave Unit 2, Boston, MA 02118",
-      "price_display": "$3,800 / monthly",
-      "location_display": "652 Massachusetts Ave Unit 2, Boston, MA 02118",
-      "primary_image": "https://ap.rdcpix.com/example-image-3/original.jpg",
+      "display_title": "121 Pembroke St Unit 3",
+      "price_display": "$4,200 / month",
+      "location_display": "Boston, MA 02118",
+      "primary_image": "https://ap.rdcpix.com/121pembroke-1.jpg",
       "all_images": [
-        "https://ap.rdcpix.com/example-image-3/original.jpg",
-        "https://ap.rdcpix.com/example-image-4/original.jpg"
+        "https://ap.rdcpix.com/121pembroke-1.jpg",
+        "https://ap.rdcpix.com/121pembroke-2.jpg",
+        "https://ap.rdcpix.com/121pembroke-3.jpg",
+        "https://ap.rdcpix.com/121pembroke-4.jpg",
+        "https://ap.rdcpix.com/121pembroke-5.jpg",
+        "https://ap.rdcpix.com/121pembroke-6.jpg",
+        "https://ap.rdcpix.com/121pembroke-7.jpg",
+        "https://ap.rdcpix.com/121pembroke-8.jpg"
       ],
       "specs": {
         "beds": 2,
         "baths": 1,
-        "sqft": 950,
-        "type": null
+        "sqft": null,
+        "type": "Apartment"
       },
       "contact": {
-        "name": "Boston City Properties",
-        "phone": "617-555-0199",
-        "email": "agent@bostoncityprops.com"
+        "name": "Boston Leasing Group",
+        "phone": "(617) 555-0199"
       },
-      "listing_url": "https://www.realtor.com/realestateandhomes-detail/652-Massachusetts-Ave-2_Boston_MA_02118_M30359-74080",
-      "quality_score": 98
+      "listing_url": "https://www.realtor.com/realestateandhomes-detail/121-Pembroke-St-3_Boston_MA_02118_M42507-12719",
+      "quality_score": 100
     },
     {
       "id": "prop_002",
-      "display_title": "5 Locke St #2, Cambridge, MA 02140",
-      "price_display": "$3,400 / monthly",
-      "location_display": "5 Locke St #2, Cambridge, MA 02140",
-      "primary_image": "https://www.trulia.com/pictures/thumbs_5/zillowstatic/fp/example-image-7.jpg",
+      "display_title": "528 E 3rd St Apt 2",
+      "price_display": "$3,400 / month",
+      "location_display": "Boston, MA 02127",
+      "primary_image": "https://ap.rdcpix.com/528e3rd-1.jpg",
       "all_images": [
-        "https://www.trulia.com/pictures/thumbs_5/zillowstatic/fp/example-image-7.jpg",
-        "https://www.trulia.com/pictures/thumbs_5/zillowstatic/fp/example-image-8.jpg"
+        "https://ap.rdcpix.com/528e3rd-1.jpg",
+        "https://ap.rdcpix.com/528e3rd-2.jpg",
+        "https://ap.rdcpix.com/528e3rd-3.jpg",
+        "https://ap.rdcpix.com/528e3rd-4.jpg",
+        "https://ap.rdcpix.com/528e3rd-5.jpg",
+        "https://ap.rdcpix.com/528e3rd-6.jpg",
+        "https://ap.rdcpix.com/528e3rd-7.jpg",
+        "https://ap.rdcpix.com/528e3rd-8.jpg"
       ],
       "specs": {
         "beds": 2,
         "baths": 1,
-        "sqft": 1050,
-        "type": null
+        "sqft": null,
+        "type": "Apartment"
       },
       "contact": {
-        "name": "Cambridge Real Estate",
-        "phone": "617-555-0444",
-        "email": "rentals@cambridgere.com"
+        "name": "Southie Residential",
+        "phone": "(617) 555-0288"
       },
-      "listing_url": "https://www.trulia.com/p/ma/cambridge/5-locke-st-2-cambridge-ma-02140--2001667252",
-      "quality_score": 98
+      "listing_url": "https://www.realtor.com/realestateandhomes-detail/528-E-3rd-St-Apt-2_Boston_MA_02127_M98377-65148",
+      "quality_score": 100
     },
     {
       "id": "prop_003",
-      "display_title": "12 Linden St, Natick, MA 01760",
-      "price_display": "$2,600 / monthly",
-      "location_display": "12 Linden St, Natick, MA 01760",
-      "primary_image": "https://images1.apartments.com/i2/example-image-1/117/12-linden-st-natick-ma-building-photo.jpg",
+      "display_title": "431 Massachusetts Ave Unit 6-7",
+      "price_display": "$2,950 / month",
+      "location_display": "Boston, MA 02118",
+      "primary_image": "https://ap.rdcpix.com/431mass-1.jpg",
       "all_images": [
-        "https://images1.apartments.com/i2/example-image-1/117/12-linden-st-natick-ma-building-photo.jpg",
-        "https://images1.apartments.com/i2/example-image-2/117/12-linden-st-natick-ma-living-room.jpg"
+        "https://ap.rdcpix.com/431mass-1.jpg",
+        "https://ap.rdcpix.com/431mass-2.jpg",
+        "https://ap.rdcpix.com/431mass-3.jpg",
+        "https://ap.rdcpix.com/431mass-4.jpg",
+        "https://ap.rdcpix.com/431mass-5.jpg",
+        "https://ap.rdcpix.com/431mass-6.jpg",
+        "https://ap.rdcpix.com/431mass-7.jpg",
+        "https://ap.rdcpix.com/431mass-8.jpg"
       ],
       "specs": {
-        "beds": 2,
+        "beds": 1,
         "baths": 1,
-        "sqft": 1100,
-        "type": null
+        "sqft": null,
+        "type": "Brownstone"
       },
       "contact": {
-        "name": "Leasing Office",
-        "phone": "508-555-0123",
-        "email": null
+        "name": "City Realty Group",
+        "phone": "(617) 555-0377"
       },
-      "listing_url": "https://www.apartments.com/12-linden-st-natick-ma/s60l616/",
-      "quality_score": 95
+      "listing_url": "https://www.realtor.com/realestateandhomes-detail/431-Massachusetts-Ave-6-7_Boston_MA_02118_M41322-12096",
+      "quality_score": 100
     },
     {
       "id": "prop_004",
-      "display_title": "41 South St Apt 2, Boston, MA 02135",
-      "price_display": "$3,100 / monthly",
-      "location_display": "41 South St Apt 2, Boston, MA 02135",
-      "primary_image": "https://ap.rdcpix.com/example-image-5/original.jpg",
+      "display_title": "734 E 2nd St Apt 2",
+      "price_display": "$3,600 / month",
+      "location_display": "South Boston, MA 02127",
+      "primary_image": "https://ap.rdcpix.com/734e2nd-1.jpg",
       "all_images": [
-        "https://ap.rdcpix.com/example-image-5/original.jpg",
-        "https://ap.rdcpix.com/example-image-6/original.jpg"
-      ],
-      "specs": {
-        "beds": 3,
-        "baths": 1,
-        "sqft": 1200,
-        "type": null
-      },
-      "contact": {
-        "name": "Brighton Realty Group",
-        "phone": "617-555-0888",
-        "email": null
-      },
-      "listing_url": "https://www.realtor.com/realestateandhomes-detail/41-South-St-Apt-2_Boston_MA_02135_M49282-13944",
-      "quality_score": 95
-    },
-    {
-      "id": "prop_005",
-      "display_title": "42 Wyman St #2, Boston, MA 02130",
-      "price_display": "$2,900 / monthly",
-      "location_display": "42 Wyman St #2, Boston, MA 02130",
-      "primary_image": "https://www.trulia.com/pictures/thumbs_5/zillowstatic/fp/example-image-9.jpg",
-      "all_images": [
-        "https://www.trulia.com/pictures/thumbs_5/zillowstatic/fp/example-image-9.jpg",
-        "https://www.trulia.com/pictures/thumbs_5/zillowstatic/fp/example-image-10.jpg"
+        "https://ap.rdcpix.com/734e2nd-1.jpg",
+        "https://ap.rdcpix.com/734e2nd-2.jpg",
+        "https://ap.rdcpix.com/734e2nd-3.jpg",
+        "https://ap.rdcpix.com/734e2nd-4.jpg",
+        "https://ap.rdcpix.com/734e2nd-5.jpg",
+        "https://ap.rdcpix.com/734e2nd-6.jpg",
+        "https://ap.rdcpix.com/734e2nd-7.jpg",
+        "https://ap.rdcpix.com/734e2nd-8.jpg"
       ],
       "specs": {
         "beds": 2,
-        "baths": 1,
-        "sqft": 1100,
-        "type": null
+        "baths": 2,
+        "sqft": null,
+        "type": "Apartment"
       },
       "contact": {
-        "name": "JP Rentals",
-        "phone": "617-555-0777",
-        "email": null
+        "name": "Luxury Living Boston",
+        "phone": "(617) 555-0455"
       },
-      "listing_url": "https://www.trulia.com/p/ma/boston/42-wyman-st-2-boston-ma-02130--2001548447",
-      "quality_score": 95
+      "listing_url": "https://www.realtor.com/realestateandhomes-detail/734-E-2nd-St-Apt-2_South-Boston_MA_02127_M93847-02323",
+      "quality_score": 100
     }
   ],
   "issues": {
