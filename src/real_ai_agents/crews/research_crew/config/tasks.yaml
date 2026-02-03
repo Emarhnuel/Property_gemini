@@ -13,8 +13,8 @@ search_listings:
 
     TOOL USAGE (MANDATORY):
     - You MUST use the Tavily Search tool.
-    - You MUST construct the query using the following format ONLY:
-      "{search_criteria} site:zillow.com OR site:realtor.com OR site:apartments.com"
+    - Construct a natural search query based on the user's criteria.
+    - DO NOT search on zillow.com (blocked).
 
     URL SELECTION RULES (STRICT):
     - Return ONLY URLs that point to individual rental listing pages.
@@ -40,26 +40,26 @@ search_listings:
     JSON SCHEMA (STRICT):
     {
       "urls": ["https://..."],
-      "platforms": ["zillow", "realtor", "apartments"]
+      "platforms": ["realtor", "apartments", "trulia", "rent", "hotpads"]
     }
 
     PLATFORM RULES:
     - "platforms" must only include platforms that appear in "urls".
-    - Allowed values: "zillow", "realtor", "apartments".
+    - BLOCKED: zillow.com (do NOT include).
+    - Allowed: realtor, apartments, trulia, rent, hotpads, or other legitimate rental sites.
     - No duplicates.
 
   expected_output: >
     {
       "urls": [
-        "https://www.zillow.com/homedetails/...",
-        "https://www.realtor.com/realestateandhomes-detail/..."
+        "https://www.realtor.com/realestateandhomes-detail/...",
+        "https://www.apartments.com/..."
       ],
-      "platforms": ["zillow", "realtor"]
+      "platforms": ["realtor", "apartments"]
     }
 
   agent: scraper
   tool_choice: required
-
 
 extract_listings:
   description: >
@@ -76,6 +76,13 @@ extract_listings:
     - If the page is blocked, retry once before skipping
     - Do NOT use API-based scraping tools
     - Do NOT infer or fabricate missing values
+
+    RENTAL ONLY FILTERING (CRITICAL):
+    - SKIP any listing that shows "For Sale", "Sold", "Off Market", "Pending"
+    - ONLY extract listings that show "For Rent", "Rental", or a monthly/weekly price
+    - Price must indicate rental (e.g., "$2,500/mo", "$600/week")
+    - If unsure whether it's a rental, SKIP the listing
+    - Do NOT include sale listings under any circumstances
 
     REQUIRED FIELDS PER LISTING:
     - listing_url (original URL)
