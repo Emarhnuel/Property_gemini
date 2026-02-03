@@ -4,27 +4,34 @@ Browser Use Cloud Tool for CrewAI.
 This tool wraps the Browser Use Cloud SDK to provide real browser automation
 capabilities to CrewAI agents. It bypasses the MCP integration issues by
 using the Browser Use Python SDK directly.
+
+Uses Google Gemini for the browser agent.
 """
 
 import os
 import asyncio
 import json
-from typing import Type, Optional, Any
+import logging
+from typing import Type, Optional
 from pydantic import BaseModel, Field
 from crewai.tools import BaseTool
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Browser Use SDK imports
 try:
-    from browser_use import Browser, Agent as BrowserAgent
-    from langchain_openai import ChatOpenAI
+    from browser_use import Browser, Agent as BrowserAgent, ChatGoogle
     BROWSER_USE_AVAILABLE = True
-except ImportError:
+    logger.info("✅ browser-use package loaded successfully")
+except ImportError as e:
     BROWSER_USE_AVAILABLE = False
+    logger.error(f"❌ browser-use import failed: {e}")
 
 
 BROWSER_USE_API_KEY = os.getenv("BROWSER_USE_API_KEY")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 
 class BrowserExtractInput(BaseModel):
@@ -44,7 +51,7 @@ class BrowserExtractTool(BaseTool):
     A CrewAI tool that uses Browser Use Cloud to extract data from web pages.
     
     This tool spins up a cloud browser, navigates to the specified URL,
-    and extracts structured data using an AI agent.
+    and extracts structured data using a Google Gemini AI agent.
     """
     
     name: str = "browser_extract"
@@ -72,20 +79,24 @@ class BrowserExtractTool(BaseTool):
     
     def _run(self, url: str, extraction_task: str = None) -> str:
         """Synchronous wrapper for the async browser extraction."""
+        logger.info(f"🌐 BrowserExtractTool called with URL: {url}")
+        
         if not BROWSER_USE_AVAILABLE:
-            return json.dumps({
-                "error": "browser-use package not installed. Run: pip install browser-use"
-            })
+            error = "browser-use package not installed. Run: pip install browser-use"
+            logger.error(f"❌ {error}")
+            return json.dumps({"error": error})
         
         if not BROWSER_USE_API_KEY:
-            return json.dumps({
-                "error": "BROWSER_USE_API_KEY environment variable not set"
-            })
+            error = "BROWSER_USE_API_KEY environment variable not set"
+            logger.error(f"❌ {error}")
+            return json.dumps({"error": error})
         
-        if not OPENAI_API_KEY:
-            return json.dumps({
-                "error": "OPENAI_API_KEY environment variable not set (required for browser agent)"
-            })
+        if not GOOGLE_API_KEY:
+            error = "GOOGLE_API_KEY environment variable not set (required for Gemini browser agent)"
+            logger.error(f"❌ {error}")
+            return json.dumps({"error": error})
+        
+        logger.info("✅ All API keys verified")
         
         # Default extraction task for real estate
         if not extraction_task:
@@ -114,37 +125,47 @@ class BrowserExtractTool(BaseTool):
         
         # Run the async extraction in a new event loop
         try:
+            logger.info("🔄 Starting async extraction...")
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             result = loop.run_until_complete(
                 self._async_extract(url, extraction_task)
             )
+            logger.info(f"✅ Extraction completed. Result length: {len(result)} chars")
             return result
         except Exception as e:
+            error_msg = f"Browser extraction failed: {str(e)}"
+            logger.error(f"❌ {error_msg}", exc_info=True)
             return json.dumps({
-                "error": f"Browser extraction failed: {str(e)}",
-                "url": url
+                "error": error_msg,
+                "url": url,
+                "exception_type": type(e).__name__
             })
         finally:
-            loop.close()
+            try:
+                loop.close()
+            except:
+                pass
     
     async def _async_extract(self, url: str, extraction_task: str) -> str:
-        """Async browser extraction using Browser Use Cloud."""
+        """Async browser extraction using Browser Use Cloud with Gemini."""
         
         browser = None
         try:
+            logger.info("🚀 Initializing cloud browser...")
+            
             # Initialize cloud browser
             browser = Browser(
                 use_cloud=True,
                 cloud_proxy_country_code=self.cloud_proxy_country,
                 cloud_timeout=self.cloud_timeout,
             )
+            logger.info("✅ Cloud browser initialized")
             
-            # Initialize LLM for the browser agent
-            llm = ChatOpenAI(
-                model="gpt-4o-mini",  # Cost-effective for extraction
-                temperature=0,
-            )
+            # Initialize Google Gemini LLM for the browser agent
+            logger.info("🤖 Initializing Gemini LLM...")
+            llm = ChatGoogle(model='gemini-2.5-flash-preview-04-17')
+            logger.info("✅ Gemini LLM initialized")
             
             # Create the browser agent with extraction task
             full_task = f"""
@@ -157,38 +178,57 @@ class BrowserExtractTool(BaseTool):
             Do not include any markdown formatting or explanations.
             """
             
+            logger.info("🤖 Creating browser agent...")
             agent = BrowserAgent(
                 task=full_task,
                 llm=llm,
                 browser=browser,
             )
+            logger.info("✅ Browser agent created")
             
             # Run the browser agent
+            logger.info("▶️ Running browser agent...")
             result = await agent.run()
+            logger.info(f"✅ Agent run completed. Result type: {type(result)}")
+            
+            # Log result attributes for debugging
+            logger.info(f"📋 Result attributes: {dir(result)}")
             
             # Extract the final result
             if hasattr(result, 'final_result') and result.final_result:
+                logger.info("📄 Found final_result attribute")
                 return result.final_result
             elif hasattr(result, 'extracted_content') and result.extracted_content:
+                logger.info("📄 Found extracted_content attribute")
                 return result.extracted_content
+            elif hasattr(result, 'model_output') and result.model_output:
+                logger.info("📄 Found model_output attribute")
+                return str(result.model_output)
             else:
+                logger.warning(f"⚠️ No standard result attribute found. Raw result: {result}")
                 return json.dumps({
                     "raw_result": str(result),
-                    "url": url
+                    "url": url,
+                    "result_type": str(type(result))
                 })
                 
         except Exception as e:
+            error_msg = f"Async extraction error: {str(e)}"
+            logger.error(f"❌ {error_msg}", exc_info=True)
             return json.dumps({
-                "error": f"Async extraction error: {str(e)}",
-                "url": url
+                "error": error_msg,
+                "url": url,
+                "exception_type": type(e).__name__
             })
         finally:
             # Cleanup browser
             if browser:
                 try:
+                    logger.info("🧹 Closing browser...")
                     await browser.close()
-                except:
-                    pass
+                    logger.info("✅ Browser closed")
+                except Exception as e:
+                    logger.warning(f"⚠️ Browser close error: {e}")
 
 
 class BrowserNavigateTool(BaseTool):
