@@ -20,7 +20,7 @@ Built with [CrewAI](https://crewai.com) and Google Gemini API.
 
 ### Tools
 - **Tavily Search**: For finding listings
-- **Browser Use MCP**: For extracting data from protected real estate sites
+- **Browser Use MCP**: For extracting data from protected real estate sites (enforced via guardrails)
 - **Google Maps Platform**: For location analysis
 - **Gemini 2.5/3.0 Image API**: For interior design visualization
 
