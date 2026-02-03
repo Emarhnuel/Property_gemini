@@ -29,6 +29,16 @@ search_listings:
     - Maximum: 6 URLs
     - NEVER invent, guess, or modify URLs.
 
+    RENTAL-ONLY FILTER (MANDATORY):
+    - ONLY include URLs for properties explicitly marked "For Rent"
+    - EXCLUDE any property that is:
+        - For Sale
+        - Sold
+        - Pending
+        - Off Market
+        - Under Contract
+    - If unsure whether a listing is for rent, SKIP it.
+
     OUTPUT FORMAT (ABSOLUTE):
     - Your FINAL answer MUST contain ONLY a valid JSON object.
     - The JSON MUST have EXACTLY two root keys: "urls" and "platforms".
@@ -63,78 +73,69 @@ search_listings:
 
 extract_listings:
   description: >
-    For EACH URL provided from `search_listings`, use a REAL BROWSER
-    automation tool to open the listing page and extract rendered rental data.
+    BROWSER EXTRACTION TASK — Use the `browser_extract` tool.
 
-    You MUST use the `browser_task` MCP tool.
+    For EACH URL provided from `search_listings`, you MUST use the
+    `browser_extract` tool to open the page in a REAL cloud browser.
 
-    BROWSER INSTRUCTIONS (STRICT):
-    - Open the listing URL in a real browser
-    - Wait for JavaScript to fully load
-    - Scroll the page if needed to reveal content
-    - Extract ONLY rendered content (not raw HTML)
-    - If the page is blocked, retry once before skipping
-    - Do NOT use API-based scraping tools
-    - Do NOT infer or fabricate missing values
+    ❌ You are NOT allowed to extract data by reasoning, guessing,
+    prior knowledge, memory, or API-based scraping.
+    ❌ You are NOT allowed to infer missing values.
+    ❌ If you do not use `browser_extract`, your output will be rejected.
 
-    RENTAL ONLY FILTERING (CRITICAL):
-    - SKIP any listing that shows "For Sale", "Sold", "Off Market", "Pending"
-    - ONLY extract listings that show "For Rent", "Rental", or a monthly/weekly price
-    - Price must indicate rental (e.g., "$2,500/mo", "$600/week")
-    - If unsure whether it's a rental, SKIP the listing
-    - Do NOT include sale listings under any circumstances
+    EXECUTION REQUIREMENTS (MANDATORY):
+    - Call `browser_extract` with each URL
+    - The tool will handle browser rendering and extraction
+    - Extract ONLY what the tool returns
+
+    SELF-CHECK (IMPORTANT):
+    - Before producing your final answer, confirm you used `browser_extract`
+    - If you did NOT, STOP and use it
+
+    RENTAL FILTER (STRICT):
+    - ONLY extract listings explicitly marked "For Rent"
+    - SKIP listings marked "For Sale", "Sold", "Pending", "Off Market"
+    - Price MUST indicate rental frequency (e.g. $/mo, $/week)
 
     REQUIRED FIELDS PER LISTING:
-    - listing_url (original URL)
-    - platform (zillow, realtor, apartments, etc.)
-    - address (full address if available)
-    - price (numeric or string as shown)
-    - price_frequency (daily | weekly | monthly | yearly)
+    - listing_url
+    - platform
+    - address
+    - price
+    - price_frequency
     - bedrooms
     - bathrooms
-    - description (trimmed, max ~300 words)
-    - images (ALL image URLs found on the page)
-    - facts_and_features (parking, pets, sqft, year built, etc.)
-    - contact:
-        - name
-        - phone
-        - email
+    - description (verbatim, rendered text)
+    - images (ALL rendered image URLs)
+    - facts_and_features
+    - contact (name, phone, or email)
 
-    IMAGE RULES:
-    - Return image URLs only
-    - No base64
-    - Empty array if none found
+    BROWSER OUTPUT SIGNALS (REALISTIC):
+    - At least 2 image URLs per listing
+    - Description must be 30+ words
+    - facts_and_features must contain 2+ entries
 
     OUTPUT RULES:
-    - Return ONLY clean structured JSON
-    - No raw HTML
+    - Return ONLY valid JSON
     - No markdown
     - No explanations
+    - No raw HTML
 
   expected_output: >
     {
       "listings": [
         {
           "listing_url": "https://...",
-          "platform": "zillow",
+          "platform": "realtor",
           "address": "123 Main St, New York, NY",
           "price": "$6,000",
           "price_frequency": "monthly",
           "bedrooms": 2,
           "bathrooms": 2,
           "description": "...",
-          "images": [
-            "https://photos.zillowstatic.com/..."
-          ],
-          "facts_and_features": {
-            "sqft": 1200,
-            "pets": "Allowed"
-          },
-          "contact": {
-            "name": "John Doe",
-            "phone": "212-555-1234",
-            "email": "agent@example.com"
-          }
+          "images": ["https://..."],
+          "facts_and_features": {},
+          "contact": {}
         }
       ],
       "summary": {
@@ -147,7 +148,6 @@ extract_listings:
   agent: extractor
   context:
     - search_listings
-  tool_choice: required
 
 validate_data:
   description: >
