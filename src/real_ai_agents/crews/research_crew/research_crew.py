@@ -117,6 +117,27 @@ def validate_extract_used(result: TaskOutput) -> Tuple[bool, Any]:
     return True, result.raw
 
 
+
+def require_browser_use_mcp(result: TaskOutput):
+    """
+    Enforce that Browser Use MCP (browser_task) was used.
+    """
+    tool_calls = result.tools_used or []
+
+    used_browser = any(
+        "browser_task" in tool.get("tool_name", "")
+        for tool in tool_calls
+    )
+
+    if not used_browser:
+        return False, "browser_task MCP tool was NOT used"
+
+    return True, result.raw
+
+
+
+
+
 # =======================
 # LLM CONFIG
 # =======================
@@ -247,7 +268,7 @@ class ResearchCrew:
         return Task(
             config=self.tasks_config["extract_listings"],
             output_json=ExtractListingsOutput,
-            guardrail=validate_extract_used,
+            guardrail=require_browser_use_mcp,
             guardrail_max_retries=2,
         )
 
