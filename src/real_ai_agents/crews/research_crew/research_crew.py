@@ -6,7 +6,7 @@ from crewai import Agent, Crew, Process, Task, LLM
 from crewai.project import CrewBase, agent, crew, task
 from crewai.tasks.task_output import TaskOutput
 from crewai_tools import TavilySearchTool
-from real_ai_agents.tools.browser_use_tool import browser_extract_tool
+from real_ai_agents.tools.crawl4ai_tool import crawl_extract_tool
 
 
 
@@ -38,8 +38,8 @@ class ExtractedListing(BaseModel):
     bathrooms: Optional[float] = None
     description: Optional[str] = None
     images: List[str] = []
-    facts_and_features: Optional[dict] = None
-    contact: Optional[dict] = None
+    facts_and_features: Optional[List[str]] = None
+    contact_info: Optional[str] = None
 
 
 class ExtractListingsOutput(BaseModel):
@@ -119,10 +119,10 @@ def validate_extract_used(result: TaskOutput) -> Tuple[bool, Any]:
 
 
 
-def browser_only_extraction_guardrail(result: TaskOutput) -> Tuple[bool, Any]:
+def crawl_extraction_guardrail(result: TaskOutput) -> Tuple[bool, Any]:
     """
-    Detects hallucinated (non-browser) extraction by enforcing
-    browser-only output signals with realistic thresholds.
+    Detects hallucinated extraction by enforcing
+    crawl-only output signals with realistic thresholds.
     """
     raw = result.raw if isinstance(result.raw, str) else json.dumps(result.raw)
 
@@ -138,7 +138,7 @@ def browser_only_extraction_guardrail(result: TaskOutput) -> Tuple[bool, Any]:
     for listing in listings:
         images = listing.get("images", [])
         description = listing.get("description", "") or ""
-        facts = listing.get("facts_and_features", {}) or {}
+        facts = listing.get("facts_and_features", []) or []
 
         # Realistic browser-only signals
         if len(images) < 2:
@@ -147,7 +147,7 @@ def browser_only_extraction_guardrail(result: TaskOutput) -> Tuple[bool, Any]:
         if len(description.split()) < 30:
             return False, "Description too short — likely hallucinated"
 
-        if not isinstance(facts, dict) or len(facts.keys()) < 2:
+        if not isinstance(facts, list) or len(facts) < 2:
             return False, "Insufficient facts/features — likely not browser data"
 
         # HTML leakage check
@@ -241,7 +241,7 @@ class ResearchCrew:
         return Agent(
             config=self.agents_config["extractor"],
             llm=gemini_pro_report_llm,  # Gemini works with custom tool (no MCP schema issues)
-            tools=[browser_extract_tool],  # Custom Browser Use Cloud tool
+            tools=[crawl_extract_tool],  # Crawl4AI extraction tool
             verbose=False,
             allow_delegation=False,
             max_iter=4,
@@ -294,7 +294,7 @@ class ResearchCrew:
         return Task(
             config=self.tasks_config["extract_listings"],
             output_json=ExtractListingsOutput,
-            guardrail=browser_only_extraction_guardrail,
+            guardrail=crawl_extraction_guardrail,
             guardrail_max_retries=2,
         )
 
