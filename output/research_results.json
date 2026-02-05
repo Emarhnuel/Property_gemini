@@ -1,133 +1,54 @@
 ```json
 {
   "metadata": {
-    "search_criteria": "Boston, MA Rental Market Search",
-    "generated_at": "2023-10-27T10:00:00Z",
-    "total_found": 4,
-    "total_validated": 4
+    "search_criteria": "Boston, MA",
+    "generated_at": "2024-05-22T14:30:00Z",
+    "total_found": 1,
+    "total_validated": 1
   },
   "properties": [
     {
       "id": "prop_001",
-      "display_title": "121 Pembroke St Unit 3",
-      "price_display": "$4,200 / month",
-      "location_display": "Boston, MA 02118",
-      "primary_image": "https://ap.rdcpix.com/121pembroke-1.jpg",
+      "display_title": "73 G St Apt 2",
+      "price_display": "$3,750 / monthly",
+      "location_display": "73 G St Apt 2, Boston, MA 02127",
+      "primary_image": "https://ap.rdcpix.com/0dd625a1a0938bcbd3ede50941d68728l-m2339829095rd-w1280_h960.webp",
       "all_images": [
-        "https://ap.rdcpix.com/121pembroke-1.jpg",
-        "https://ap.rdcpix.com/121pembroke-2.jpg",
-        "https://ap.rdcpix.com/121pembroke-3.jpg",
-        "https://ap.rdcpix.com/121pembroke-4.jpg",
-        "https://ap.rdcpix.com/121pembroke-5.jpg",
-        "https://ap.rdcpix.com/121pembroke-6.jpg",
-        "https://ap.rdcpix.com/121pembroke-7.jpg",
-        "https://ap.rdcpix.com/121pembroke-8.jpg"
-      ],
-      "specs": {
-        "beds": 2,
-        "baths": 1,
-        "sqft": null,
-        "type": "Apartment"
-      },
-      "contact": {
-        "name": "Boston Leasing Group",
-        "phone": "(617) 555-0199"
-      },
-      "listing_url": "https://www.realtor.com/realestateandhomes-detail/121-Pembroke-St-3_Boston_MA_02118_M42507-12719",
-      "quality_score": 100
-    },
-    {
-      "id": "prop_002",
-      "display_title": "528 E 3rd St Apt 2",
-      "price_display": "$3,400 / month",
-      "location_display": "Boston, MA 02127",
-      "primary_image": "https://ap.rdcpix.com/528e3rd-1.jpg",
-      "all_images": [
-        "https://ap.rdcpix.com/528e3rd-1.jpg",
-        "https://ap.rdcpix.com/528e3rd-2.jpg",
-        "https://ap.rdcpix.com/528e3rd-3.jpg",
-        "https://ap.rdcpix.com/528e3rd-4.jpg",
-        "https://ap.rdcpix.com/528e3rd-5.jpg",
-        "https://ap.rdcpix.com/528e3rd-6.jpg",
-        "https://ap.rdcpix.com/528e3rd-7.jpg",
-        "https://ap.rdcpix.com/528e3rd-8.jpg"
-      ],
-      "specs": {
-        "beds": 2,
-        "baths": 1,
-        "sqft": null,
-        "type": "Apartment"
-      },
-      "contact": {
-        "name": "Southie Residential",
-        "phone": "(617) 555-0288"
-      },
-      "listing_url": "https://www.realtor.com/realestateandhomes-detail/528-E-3rd-St-Apt-2_Boston_MA_02127_M98377-65148",
-      "quality_score": 100
-    },
-    {
-      "id": "prop_003",
-      "display_title": "431 Massachusetts Ave Unit 6-7",
-      "price_display": "$2,950 / month",
-      "location_display": "Boston, MA 02118",
-      "primary_image": "https://ap.rdcpix.com/431mass-1.jpg",
-      "all_images": [
-        "https://ap.rdcpix.com/431mass-1.jpg",
-        "https://ap.rdcpix.com/431mass-2.jpg",
-        "https://ap.rdcpix.com/431mass-3.jpg",
-        "https://ap.rdcpix.com/431mass-4.jpg",
-        "https://ap.rdcpix.com/431mass-5.jpg",
-        "https://ap.rdcpix.com/431mass-6.jpg",
-        "https://ap.rdcpix.com/431mass-7.jpg",
-        "https://ap.rdcpix.com/431mass-8.jpg"
-      ],
-      "specs": {
-        "beds": 1,
-        "baths": 1,
-        "sqft": null,
-        "type": "Brownstone"
-      },
-      "contact": {
-        "name": "City Realty Group",
-        "phone": "(617) 555-0377"
-      },
-      "listing_url": "https://www.realtor.com/realestateandhomes-detail/431-Massachusetts-Ave-6-7_Boston_MA_02118_M41322-12096",
-      "quality_score": 100
-    },
-    {
-      "id": "prop_004",
-      "display_title": "734 E 2nd St Apt 2",
-      "price_display": "$3,600 / month",
-      "location_display": "South Boston, MA 02127",
-      "primary_image": "https://ap.rdcpix.com/734e2nd-1.jpg",
-      "all_images": [
-        "https://ap.rdcpix.com/734e2nd-1.jpg",
-        "https://ap.rdcpix.com/734e2nd-2.jpg",
-        "https://ap.rdcpix.com/734e2nd-3.jpg",
-        "https://ap.rdcpix.com/734e2nd-4.jpg",
-        "https://ap.rdcpix.com/734e2nd-5.jpg",
-        "https://ap.rdcpix.com/734e2nd-6.jpg",
-        "https://ap.rdcpix.com/734e2nd-7.jpg",
-        "https://ap.rdcpix.com/734e2nd-8.jpg"
+        "https://ap.rdcpix.com/0dd625a1a0938bcbd3ede50941d68728l-m2339829095rd-w1280_h960.webp",
+        "https://ap.rdcpix.com/0dd625a1a0938bcbd3ede50941d68728l-m947698712rd-w1280_h960.webp",
+        "https://ap.rdcpix.com/0dd625a1a0938bcbd3ede50941d68728l-m3730188986rd-w1280_h960.webp",
+        "https://ap.rdcpix.com/0dd625a1a0938bcbd3ede50941d68728l-m2001206067rd-w1280_h960.webp",
+        "https://ap.rdcpix.com/0dd625a1a0938bcbd3ede50941d68728l-m3967832448rd-w1280_h960.webp",
+        "https://ap.rdcpix.com/0dd625a1a0938bcbd3ede50941d68728l-m983686827rd-w1280_h960.webp",
+        "https://ap.rdcpix.com/0dd625a1a0938bcbd3ede50941d68728l-m462514613rd-w1280_h960.webp",
+        "https://ap.rdcpix.com/0dd625a1a0938bcbd3ede50941d68728l-m2823925908rd-w1280_h960.webp",
+        "https://ap.rdcpix.com/0dd625a1a0938bcbd3ede50941d68728l-m3509886484rd-w1280_h960.webp",
+        "https://ap.rdcpix.com/0dd625a1a0938bcbd3ede50941d68728l-m396402893rd-w1280_h960.webp",
+        "https://ap.rdcpix.com/0dd625a1a0938bcbd3ede50941d68728l-m848933600rd-w1280_h960.webp",
+        "https://ap.rdcpix.com/0dd625a1a0938bcbd3ede50941d68728l-m976961199rd-w1280_h960.webp",
+        "https://ap.rdcpix.com/0dd625a1a0938bcbd3ede50941d68728l-m831243844rd-w1280_h960.webp",
+        "https://ap.rdcpix.com/0dd625a1a0938bcbd3ede50941d68728l-m1047826739rd-w1280_h960.webp",
+        "https://ap.rdcpix.com/0dd625a1a0938bcbd3ede50941d68728l-m3339668243rd-w1280_h960.webp"
       ],
       "specs": {
         "beds": 2,
         "baths": 2,
-        "sqft": null,
-        "type": "Apartment"
+        "sqft": 850,
+        "type": "Condos"
       },
-      "contact": {
-        "name": "Luxury Living Boston",
-        "phone": "(617) 555-0455"
-      },
-      "listing_url": "https://www.realtor.com/realestateandhomes-detail/734-E-2nd-St-Apt-2_South-Boston_MA_02127_M93847-02323",
-      "quality_score": 100
+      "contact": "Landlord",
+      "listing_url": "https://www.realtor.com/rentals/details/73-G-St-Apt-2_Boston_MA_02127_M93161-56758",
+      "quality_score": 40
     }
   ],
   "issues": {
-    "properties_with_no_contact": [],
+    "properties_with_no_contact": [
+      "prop_001"
+    ],
     "properties_with_no_images": [],
-    "properties_flagged": []
+    "properties_flagged": [
+      "prop_001"
+    ]
   }
 }
 ```
