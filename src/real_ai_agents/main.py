@@ -12,10 +12,11 @@ Orchestrates the real estate workflow with human-in-the-loop:
 
 
 import json
+import asyncio
 from typing import List, Optional
 from pydantic import BaseModel, Field
 
-from crewai.flow.flow import Flow, listen, start, and_
+from crewai.flow.flow import Flow, listen, start
 from crewai.flow.persistence import persist
 from crewai.flow.human_feedback import human_feedback, HumanFeedbackResult
 
@@ -182,45 +183,50 @@ class RealEstateFlow(Flow[RealEstateState]):
         return self.run_research_phase()
 
     @listen(filter_approved_properties)
-    def run_location_phase(self):
-        """Phase 3: Run Location Analyzer Crew."""
-        print("\n📍 Phase 3: Location Analysis")
+    async def run_parallel_action_phase(self):
+        """Phase 2: Run Location and Design Crews in PARALLEL."""
+        print("\n🚀 Phase 2: Parallel Execution (Location & Design)")
         
         if self.state.properties_approved == 0:
             print("   ⚠️ No properties approved, skipping...")
             return
-        
-        result = LocationAnalyzerCrew().crew().kickoff(
-            inputs={"research_results": self.state.filtered_research_results}
-        )
-        self.state.location_results = result.raw
-        self.state.properties_analyzed = self.state.properties_approved
-        print(f"   ✅ Analyzed {self.state.properties_analyzed} locations")
 
-    @listen(filter_approved_properties)
-    def run_design_phase(self):
-        """Phase 4: Run Interior Design Crew."""
-        print("\n🎨 Phase 4: Interior Design")
-        
-        if self.state.properties_approved == 0:
-            print("   ⚠️ No properties to redesign, skipping...")
-            return
-        
-        result = InteriorDesignCrew().crew().kickoff(inputs={
+        # Prepare inputs
+        inputs = {
             "research_results": self.state.filtered_research_results,
             "design_style": self.state.design_style_preference
-        })
-        self.state.design_results = result.raw
+        }
+
+        # Create tasks for parallel execution
+        location_task = asyncio.create_task(
+            LocationAnalyzerCrew().crew().kickoff_async(inputs=inputs)
+        )
+        design_task = asyncio.create_task(
+            InteriorDesignCrew().crew().kickoff_async(inputs=inputs)
+        )
+
+        # Wait for both to complete
+        results = await asyncio.gather(location_task, design_task)
         
+        # Unpack results
+        location_result, design_result = results
+        
+        self.state.location_results = location_result.raw
+        self.state.design_results = design_result.raw
+        
+        # Update metrics
+        self.state.properties_analyzed = self.state.properties_approved
         try:
-            data = json.loads(result.raw)
-            self.state.rooms_redesigned = data.get("metadata", {}).get("total_rooms_redesigned", 0)
+            design_data = json.loads(design_result.raw)
+            self.state.rooms_redesigned = design_data.get("metadata", {}).get("total_rooms_redesigned", 0)
         except:
             pass
-        
-        print(f"   ✅ Redesigned {self.state.rooms_redesigned} rooms")
 
-    @listen(and_(run_location_phase, run_design_phase))
+        print(f"   ✅ Parallel Phase Complete")
+        print(f"      - Analyzed {self.state.properties_analyzed} locations")
+        print(f"      - Redesigned {self.state.rooms_redesigned} rooms")
+
+    @listen(run_parallel_action_phase)
     def compile_final_report(self):
         """Final: Compile unified report."""
         print("\n📊 Compiling Final Report")
