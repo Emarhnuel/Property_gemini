@@ -9,3 +9,6 @@ lib/
 *.md
 !README.md
 !AGENTS.md
+
+# Crawl4AI Browser Profile
+.browser_profile/
