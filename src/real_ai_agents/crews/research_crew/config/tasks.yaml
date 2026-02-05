@@ -8,8 +8,8 @@ search_listings:
     Use the Tavily Search tool to find REAL, individual rental property
     listing URLs that match the user's search criteria exactly.
 
-    SEARCH INTENT EXAMPLE:
-    "2 bedroom house for rent in Massachusetts under $8000 monthly"
+    USER SEARCH CRITERIA (USE THIS):
+    {search_criteria}
 
     TOOL USAGE (MANDATORY):
     - You MUST use the Tavily Search tool.
