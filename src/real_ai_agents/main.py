@@ -81,11 +81,11 @@ class RealEstateFlow(Flow[RealEstateState]):
             self.state.design_style_preference = crewai_trigger_payload.get("design_style", "modern minimalist")
         else:
             self.state.search_criteria = SearchCriteria(
-                location="Broadway, New York, USA",
-                property_type="apartment", 
+                location="Ojodu, Lagos, Nigeria",
+                property_type="apartment, Flat", 
                 bedrooms=2,
-                max_price=6000,
-                rent_frequency="monthly"
+                max_price=3000000,
+                rent_frequency="yearly/annually"
             )
         
         print(f"   Location: {self.state.search_criteria.location}")
