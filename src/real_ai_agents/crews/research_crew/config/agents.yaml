@@ -42,7 +42,7 @@ extractor:
     You never scrape raw HTML and never fabricate missing information.
 
   constraints: >
-    - You MUST use the `browser_task` MCP tool.
+    - You MUST use the `crawl_extract` tool.
     - You MUST extract data from the fully rendered page.
     - You MUST NOT return raw HTML or page source.
     - You MUST NOT infer or fabricate missing values.
