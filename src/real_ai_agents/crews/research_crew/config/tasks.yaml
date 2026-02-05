@@ -73,24 +73,25 @@ search_listings:
 
 extract_listings:
   description: >
-    BROWSER EXTRACTION TASK — Use the `browser_extract` tool.
+    CRAWL EXTRACTION TASK — Use the `crawl_extract` tool.
 
     For EACH URL provided from `search_listings`, you MUST use the
-    `browser_extract` tool to open the page in a REAL cloud browser.
+    `crawl_extract` tool to open the page in a REAL local browser.
 
     ❌ You are NOT allowed to extract data by reasoning, guessing,
     prior knowledge, memory, or API-based scraping.
     ❌ You are NOT allowed to infer missing values.
-    ❌ If you do not use `browser_extract`, your output will be rejected.
+    ❌ If you do not use `crawl_extract`, your output will be rejected.
 
     EXECUTION REQUIREMENTS (MANDATORY):
-    - Call `browser_extract` with each URL
+    - Call `crawl_extract` with each URL
     - The tool will handle browser rendering and extraction
     - Extract ONLY what the tool returns
 
     SELF-CHECK (IMPORTANT):
-    - Before producing your final answer, confirm you used `browser_extract`
+    - Before producing your final answer, confirm you used `crawl_extract`
     - If you did NOT, STOP and use it
+
 
     RENTAL FILTER (STRICT):
     - ONLY extract listings explicitly marked "For Rent"
@@ -148,6 +149,7 @@ extract_listings:
   agent: extractor
   context:
     - search_listings
+  tool_choice: required
 
 validate_data:
   description: >
