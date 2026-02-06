@@ -30,4 +30,18 @@
   .card {
     @apply bg-white rounded-2xl border border-brand-100 shadow-soft p-6 transition-all duration-300 hover:shadow-lg hover:border-brand-200;
   }
+
+  .animate-marquee {
+    animation: marquee 40s linear infinite;
+  }
+
+  @keyframes marquee {
+    0% {
+      transform: translateX(0);
+    }
+
+    100% {
+      transform: translateX(-50%);
+    }
+  }
 }
