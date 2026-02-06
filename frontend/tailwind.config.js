@@ -43,7 +43,7 @@ export default {
         'glow': '0 0 15px rgba(243, 196, 72, 0.3)', // Gold glow
       },
       backgroundImage: {
-        'nature-pattern': "url('/src/assets/hero-bg.png')",
+        'nature-pattern': "url('/src/assets/Generated Image February 06, 2026 - 4_28PM.jpeg')",
       }
     },
   },
