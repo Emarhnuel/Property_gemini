@@ -1,69 +1,34 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
-import { SearchForm } from './components/SearchForm';
-import { PropertyGrid } from './components/PropertyGrid';
-import type { Property } from './components/PropertyCard';
+import { HowItWorks } from './components/HowItWorks';
+import { Features } from './components/Features';
 import { LocationAnalysis } from './components/LocationAnalysis';
 import { DesignComparison } from './components/DesignComparison';
 import { ArrowLeft } from 'lucide-react';
+import { AnalysisPage } from './pages/AnalysisPage';
 
-// Mock Data
-const MOCK_PROPERTIES: Property[] = [
-  {
-    id: '1',
-    title: 'Modern Downtown Loft',
-    price: '$2,450/mo',
-    address: '123 Congress Ave, Austin, TX',
-    specs: { beds: 2, baths: 2, sqft: 1200 },
-    image: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&q=80&w=800',
-    rating: 92,
-    tags: ['Downtown', 'Gym']
-  },
-  {
-    id: '2',
-    title: 'Riverside Condo with View',
-    price: '$3,100/mo',
-    address: '456 Riverside Dr, Austin, TX',
-    specs: { beds: 3, baths: 2.5, sqft: 1800 },
-    image: 'https://images.unsplash.com/photo-1512918760532-3ed64bc8066e?auto=format&fit=crop&q=80&w=800',
-    rating: 88,
-    tags: ['Waterfront', 'Pool']
-  },
-  {
-    id: '3',
-    title: 'Historic Bungalow',
-    price: '$2,800/mo',
-    address: '789 East 6th St, Austin, TX',
-    specs: { beds: 2, baths: 1, sqft: 1100 },
-    image: 'https://images.unsplash.com/photo-1513584687574-9cfbe9300081?auto=format&fit=crop&q=80&w=800',
-    rating: 95,
-    tags: ['Historic', 'Garden']
-  }
-];
+// Types for property details (keeping for future integration)
+import type { Property } from './components/PropertyCard';
 
-function App() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [properties, setProperties] = useState<Property[]>([]);
-  const [hasSearched, setHasSearched] = useState(false);
+function HomePage() {
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const handleSearch = (criteria: any) => {
-    console.log("Searching with:", criteria);
-    setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setProperties(MOCK_PROPERTIES);
-      setHasSearched(true);
-      setIsLoading(false);
-    }, 1500);
-  };
+  // Handle scroll to section if coming from another page
+  useEffect(() => {
+    if (location.state && location.state.scrollTo) {
+      const id = location.state.scrollTo;
+      setTimeout(() => {
+        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+  }, [location]);
 
-  const handlePropertySelect = (id: string) => {
-    setSelectedPropertyId(id);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
+  // Placeholder for future real data
+  const properties: Property[] = [];
   const selectedProperty = properties.find(p => p.id === selectedPropertyId);
 
   return (
@@ -133,30 +98,44 @@ function App() {
         ) : (
           <>
             <Hero />
-            <div className="container mx-auto px-6 mb-20">
-              <SearchForm onSearch={handleSearch} isLoading={isLoading} />
+            <HowItWorks />
+            <Features />
 
-              {hasSearched && (
-                <div className="mt-24 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                  <div className="flex items-center justify-between mb-8">
-                    <h2 className="text-2xl font-bold text-slate-900">Top AI Recommendations</h2>
-                    <span className="text-sm text-slate-500">Found {properties.length} properties matching your criteria</span>
-                  </div>
-                  <PropertyGrid properties={properties} onSelect={handlePropertySelect} />
-                </div>
-              )}
+            <div className="container mx-auto px-6 py-24 text-center">
+              <h2 className="text-3xl font-bold text-brand-900 mb-6">Ready to find your next investment?</h2>
+              <p className="text-brand-700 max-w-2xl mx-auto mb-8">
+                Our AI agents are standing by to analyze locations and redesign properties for you.
+              </p>
+
+              <button
+                onClick={() => navigate('/analysis')}
+                className="btn-primary inline-flex items-center gap-2 px-8 py-4 text-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+              >
+                <span>Start Analysis</span>
+                <ArrowLeft className="w-5 h-5 rotate-180" />
+              </button>
             </div>
           </>
         )}
       </main>
 
-      {/* Footer Placeholder */}
-      <footer className="bg-slate-50 border-t border-slate-200 py-12 mt-20">
+      <footer className="bg-slate-50 border-t border-slate-200 py-12">
         <div className="container mx-auto px-6 text-center text-slate-500 text-sm">
-          <p>© 2024 Property Gemini AI. All rights reserved.</p>
+          <p>© 2026 Property Gemini AI. All rights reserved.</p>
         </div>
       </footer>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/analysis" element={<AnalysisPage />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
