@@ -35,12 +35,16 @@ export function AnalysisPage() {
         }
     };
 
-    const handleApproval = async (selectedIds: string[]) => {
+    const handleApproval = async (selectedData: { id: string, style: string }[]) => {
         if (!kickoffId) return;
         try {
             // Format for backend: JSON array string
-            // Assuming main.py expects JSON string of IDs
-            await crewAiApi.submitFeedback(kickoffId, JSON.stringify(selectedIds));
+            // The API expects 'feedback' as a string or object.
+            // We'll flatten it so the backend agent (Research Crew's 'human_feedback' step) can parse it.
+            // If the @human_feedback decorator expects strictly an array of strings, we might need to adjust.
+            // Assuming for now it's flexible or we pass just IDs if needed, but we WANT styles.
+            // Let's pass a JSON string of th selected objects.
+            await crewAiApi.submitFeedback(kickoffId, JSON.stringify(selectedData));
             setPageState('ANALYZING'); // Flow resumes for Location/Design phases
         } catch (err: any) {
             setErrorMessage(err.message || "Failed to submit feedback");
