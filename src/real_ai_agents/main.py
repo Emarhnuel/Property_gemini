@@ -65,8 +65,6 @@ class RealEstateState(BaseModel):
     properties_analyzed: int = 0
     rooms_redesigned: int = 0 
 
-
-@persist()
 class RealEstateFlow(Flow[RealEstateState]): 
     """AI Real Estate Agent Flow with human-in-the-loop property approval."""
 
