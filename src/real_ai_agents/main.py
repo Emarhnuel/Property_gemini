@@ -77,17 +77,27 @@ class RealEstateFlow(Flow[RealEstateState]):
         print("🏠 AI Real Estate Agent - Find & Redesign")
         print("=" * 60)
         
-        if crewai_trigger_payload:
-            self.state.search_criteria = SearchCriteria(**crewai_trigger_payload.get("search_criteria", {}))
-            self.state.design_style_preference = crewai_trigger_payload.get("design_style", "modern minimalist")
-        else:
-            self.state.search_criteria = SearchCriteria(
-                location="Ojodu, Lagos, Nigeria",
-                property_type="apartment, Flat", 
-                bedrooms=2,
-                max_price=3000000,
-                rent_frequency="yearly/annually"
-            )
+        # Priority: 
+        # 1. Payload passed directly to this method (e.g. via API webhook)
+        # 2. Inputs passed to kickoff() which are stored in self.state by CrewAI Flow (if structured properly)
+        
+        inputs = crewai_trigger_payload or {}
+        
+        # If inputs are empty, use defaults
+        if not inputs.get("search_criteria"):
+            inputs = {
+                "search_criteria": {
+                    "location": "Ojodu, Lagos, Nigeria",
+                    "property_type": "apartment, Flat", 
+                    "bedrooms": 2,
+                    "max_price": 3000000,
+                    "rent_frequency": "yearly/annually"
+                },
+                "design_style": "modern minimalist"
+            }
+            
+        self.state.search_criteria = SearchCriteria(**inputs.get("search_criteria", {}))
+        self.state.design_style_preference = inputs.get("design_style", "modern minimalist")
         
         print(f"   Location: {self.state.search_criteria.location}")
         print(f"   Bedrooms: {self.state.search_criteria.bedrooms}")
@@ -255,9 +265,29 @@ class RealEstateFlow(Flow[RealEstateState]):
         return final_report
 
 
-def kickoff():
-    """Run the Real Estate Agent flow."""
-    RealEstateFlow().kickoff()
+def kickoff(inputs: dict = None):
+    """
+    Run the Real Estate Agent flow.
+    
+    Args:
+        inputs (dict): Input parameters for the flow.
+                       Expected keys: 'search_criteria', 'design_style'
+    """
+    # Default inputs if none provided
+    if inputs is None:
+        inputs = {
+            "search_criteria": {
+                "location": "Ojodu, Lagos, Nigeria",
+                "property_type": "apartment, Flat",
+                "bedrooms": 2,
+                "max_price": 3000000,
+                "rent_frequency": "yearly/annually"
+            },
+            "design_style": "modern minimalist"
+        }
+        
+    print(f"🚀 Kicking off flow with inputs: {json.dumps(inputs, indent=2)}")
+    RealEstateFlow().kickoff(inputs=inputs)
 
 
 def plot():
