@@ -138,6 +138,15 @@ wheels = [
 ]
 
 [[package]]
+name = "annotated-doc"
+version = "0.0.4"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/57/ba/046ceea27344560984e26a590f90bc7f4a75b06701f653222458922b558c/annotated_doc-0.0.4.tar.gz", hash = "sha256:fbcda96e87e9c92ad167c2e53839e57503ecfda18804ea28102353485033faa4", size = 7288, upload-time = "2025-11-10T22:07:42.062Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/1e/d3/26bf1008eb3d2daa8ef4cacc7f3bfdc11818d111f7e2d0201bc6e3b49d45/annotated_doc-0.0.4-py3-none-any.whl", hash = "sha256:571ac1dc6991c450b25a9c2d84a3705e2ae7a53467b5d111c24fa8baabbed320", size = 5303, upload-time = "2025-11-10T22:07:40.673Z" },
+]
+
+[[package]]
 name = "annotated-types"
 version = "0.7.0"
 source = { registry = "https://pypi.org/simple" }
@@ -921,6 +930,22 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/41/43/948d10bf42735709edb5ae51e23297d034086f17fc7279fef385a7acb473/fake_useragent-2.2.0.tar.gz", hash = "sha256:4e6ab6571e40cc086d788523cf9e018f618d07f9050f822ff409a4dfe17c16b2", size = 158898, upload-time = "2025-04-14T15:32:19.238Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/51/37/b3ea9cd5558ff4cb51957caca2193981c6b0ff30bd0d2630ac62505d99d0/fake_useragent-2.2.0-py3-none-any.whl", hash = "sha256:67f35ca4d847b0d298187443aaf020413746e56acd985a611908c73dba2daa24", size = 161695, upload-time = "2025-04-14T15:32:17.732Z" },
+]
+
+[[package]]
+name = "fastapi"
+version = "0.128.5"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "annotated-doc" },
+    { name = "pydantic" },
+    { name = "starlette" },
+    { name = "typing-extensions" },
+    { name = "typing-inspection" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/02/d4/811e7283aaaa84f1e7bd55fb642b58f8c01895e4884a9b7628cb55e00d63/fastapi-0.128.5.tar.gz", hash = "sha256:a7173579fc162d6471e3c6fbd9a4b7610c7a3b367bcacf6c4f90d5d022cab711", size = 374636, upload-time = "2026-02-08T10:22:30.493Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e4/e0/511972dba23ee76c0e9d09d1ae95e916fc8ebce5322b2b8b65a481428b10/fastapi-0.128.5-py3-none-any.whl", hash = "sha256:bceec0de8aa6564599c5bcc0593b0d287703562c848271fca8546fd2c87bf4dd", size = 103677, upload-time = "2026-02-08T10:22:28.919Z" },
 ]
 
 [[package]]
@@ -3381,6 +3406,7 @@ source = { editable = "." }
 dependencies = [
     { name = "crawl4ai", extra = ["all"] },
     { name = "crewai", extra = ["tools"] },
+    { name = "fastapi" },
     { name = "google-genai" },
     { name = "litellm" },
     { name = "matplotlib" },
@@ -3389,12 +3415,14 @@ dependencies = [
     { name = "scikit-learn" },
     { name = "tavily-python" },
     { name = "uv" },
+    { name = "uvicorn", extra = ["standard"] },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "crawl4ai", extras = ["all"], specifier = ">=0.8.0" },
     { name = "crewai", extras = ["tools"], specifier = "==1.9.3" },
+    { name = "fastapi", specifier = ">=0.115.0" },
     { name = "google-genai", specifier = ">=1.60.0" },
     { name = "litellm", specifier = ">=1.75.3" },
     { name = "matplotlib", specifier = ">=3.10.8" },
@@ -3403,6 +3431,7 @@ requires-dist = [
     { name = "scikit-learn", specifier = ">=1.7.2" },
     { name = "tavily-python", specifier = ">=0.7.19" },
     { name = "uv", specifier = ">=0.9.26" },
+    { name = "uvicorn", extras = ["standard"], specifier = ">=0.34.0" },
 ]
 
 [[package]]
