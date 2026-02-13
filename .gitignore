@@ -5,6 +5,7 @@ lib/
 .kiro/
 .venv
 .venv/
+pyvenv.cfg
 
 
 # Ignore all markdown files except README.md and AGENTS.md
