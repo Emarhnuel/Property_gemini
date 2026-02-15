@@ -91,23 +91,14 @@ def validate_design_report(result: TaskOutput) -> Tuple[bool, Any]:
         return (False, f"Validation error: {str(e)}")
 
 
-llm = LLM(
-    model="openrouter/x-ai/grok-4.1-fast",
-    base_url="https://openrouter.ai/api/v1",
-    api_key=OPENROUTER_API_KEY,
+nova_llm = LLM(
+    model="bedrock/us.amazon.nova-2-lite-v1:0",
     temperature=0.1,
 )
 
-llm1 = LLM(
-    model="openrouter/deepseek/deepseek-v3.2",
-    base_url="https://openrouter.ai/api/v1",
-    api_key=OPENROUTER_API_KEY,
-    temperature=0.1,
-    #stream=True
-)
 
-gemini_llm = LLM(
-    model="gemini/gemini-3-pro-preview",
+nova_llm2 = LLM(
+    model="bedrock/us.amazon.nova-2-pro-v1:0",
     temperature=0.1,
 )
 
@@ -136,7 +127,7 @@ class InteriorDesignCrew:
         return Agent(
             config=self.agents_config["design_coordinator"],  # type: ignore[index]
             verbose=True,
-            llm=llm1,
+            llm=nova_llm,
             max_iter=6,
             cache=True,
             tools=[generate_room_description],
@@ -148,7 +139,7 @@ class InteriorDesignCrew:
         return Agent(
             config=self.agents_config["room_redesigner"],  # type: ignore[index]
             verbose=True,
-            llm=llm,
+            llm=nova_llm,
             max_iter=10,
             max_rpm=10,
             cache=True,
@@ -162,7 +153,7 @@ class InteriorDesignCrew:
         return Agent(
             config=self.agents_config["report_agent"],  # type: ignore[index]
             verbose=True,
-            llm=gemini_llm,
+            llm=nova_llm,
             max_iter=5,
             cache=True,
         )
