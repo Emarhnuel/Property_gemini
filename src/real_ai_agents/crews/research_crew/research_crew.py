@@ -162,36 +162,10 @@ def crawl_extraction_guardrail(result: TaskOutput) -> Tuple[bool, Any]:
 # LLM CONFIG
 # =======================
 
-
-gemini_flash_scraper_llm = LLM(
-    model="gemini/gemini-3-flash-preview",
+nova_llm = LLM(
+    model="bedrock/us.amazon.nova-2-lite-v1:0",
     temperature=0.0,
-    max_tokens=20000,  # small hard cap
-    top_p=0.9,
-)
-
-
-gemini_pro_report_llm = LLM(
-    model="gemini/gemini-3-pro-preview",
-    temperature=0.0,
-    max_tokens=20000,  # avoid huge outputs
-    top_p=0.9,
-)
-
-# DeepSeek for Validator - cheap, no Gemini needed
-validator_llm = LLM(
-    model="openrouter/deepseek/deepseek-v3.2",
-    base_url="https://openrouter.ai/api/v1",
-    api_key=OPENROUTER_API_KEY,
-    temperature=0.0,
-    max_tokens=9000,
-)
-
-# OpenAI for Extractor - compatible with Browser Use MCP tool schemas
-openai_extractor_llm = LLM(
-    model="openai/gpt-5-mini-2025-08-07",
-    temperature=0.0,
-    max_tokens=16000,
+    max_tokens=20000,
 )
 
 
@@ -226,7 +200,7 @@ class ResearchCrew:
         """Scraper agent using Gemini Pro - specialized for URL discovery."""
         return Agent(
             config=self.agents_config["scraper"],
-            llm=gemini_flash_scraper_llm,
+            llm=nova_llm,
             tools=[tavily_search],
             verbose=False,
             allow_delegation=False,
@@ -240,7 +214,7 @@ class ResearchCrew:
         """Extractor agent using Gemini Pro with Browser Use Cloud tool."""
         return Agent(
             config=self.agents_config["extractor"],
-            llm=gemini_pro_report_llm,  # Gemini works with custom tool (no MCP schema issues)
+            llm=nova_llm,
             tools=[crawl_extract_tool],  # Crawl4AI extraction tool
             verbose=False,
             allow_delegation=False,
@@ -257,7 +231,7 @@ class ResearchCrew:
         """Validator agent using DeepSeek - cheap reasoning."""
         return Agent(
             config=self.agents_config["validator"],
-            llm=validator_llm,
+            llm=nova_llm,
             verbose=True,
             max_iter=4,
             max_retry_limit=6,
@@ -269,7 +243,7 @@ class ResearchCrew:
         """Report agent using Gemini Flash - formatting only."""
         return Agent(
             config=self.agents_config["report_agent"],
-            llm=gemini_flash_scraper_llm,
+            llm=nova_llm,
             verbose=False,
             max_iter=4,
             max_retry_limit=6,
