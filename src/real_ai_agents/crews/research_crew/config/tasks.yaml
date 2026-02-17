@@ -1,63 +1,36 @@
 # ================================
 # Research Agent Crew Tasks
-# Optimized for Low Token Usage
+# Optimized for Amazon Nova Models
 # ================================
 
 search_listings:
   description: >
-    Use the Tavily Search tool to find REAL, individual rental property
-    listing URLs that match the user's search criteria exactly.
+    Use the tavily_search tool to find REAL rental property listing URLs
+    matching the user's search criteria.
 
-    USER SEARCH CRITERIA (USE THIS):
+    SEARCH CRITERIA:
     {search_criteria}
 
-    TOOL USAGE (MANDATORY):
-    - You MUST use the Tavily Search tool.
-    - Construct a natural search query based on the user's criteria.
-    - DO NOT search on zillow.com (blocked).
+    RULES:
+    - You MUST call the tavily_search tool with a search query.
+    - Return 3-6 individual listing URLs (not search/category pages).
+    - Only include rental listings (not for sale).
+    - Do NOT include zillow.com URLs.
+    - Never invent or guess URLs.
 
-    URL SELECTION RULES (STRICT):
-    - Return ONLY URLs that point to individual rental listing pages.
-    - Listings MUST be rentals (not sales).
-    - DO NOT return:
-        - Search result pages
-        - Category pages
-        - Blog posts
-        - Market reports
-        - Aggregation pages
-    - Minimum: 3 URLs
-    - Maximum: 6 URLs
-    - NEVER invent, guess, or modify URLs.
+    EXAMPLE TOOL CALL:
+    When you use the tavily_search tool, pass the query like this:
+    Action: tavily_search
+    Action Input: {{"query": "2 bedroom apartment for rent in Houston TX"}}
 
-    RENTAL-ONLY FILTER (MANDATORY):
-    - ONLY include URLs for properties explicitly marked "For Rent"
-    - EXCLUDE any property that is:
-        - For Sale
-        - Sold
-        - Pending
-        - Off Market
-        - Under Contract
-    - If unsure whether a listing is for rent, SKIP it.
+    If no rental listings are found, return:
+    {{"urls": [], "platforms": []}}
 
-    OUTPUT FORMAT (ABSOLUTE):
-    - Your FINAL answer MUST contain ONLY a valid JSON object.
-    - The JSON MUST have EXACTLY two root keys: "urls" and "platforms".
-    - Do NOT include any text, explanations, comments, or instructions.
-    - Do NOT wrap the JSON in markdown code blocks.
-    - Do NOT repeat task instructions.
-    - Do NOT include trailing characters before or after the JSON.
-
-    JSON SCHEMA (STRICT):
-    {
-      "urls": ["https://..."],
-      "platforms": ["realtor", "apartments", "trulia", "rent", "hotpads"]
-    }
-
-    PLATFORM RULES:
-    - "platforms" must only include platforms that appear in "urls".
-    - BLOCKED: zillow.com (do NOT include).
-    - Allowed: realtor, apartments, trulia, rent, hotpads, or other legitimate rental sites.
-    - No duplicates.
+    YOUR FINAL ANSWER MUST BE ONLY THIS JSON (no other text):
+    {{
+      "urls": ["https://www.realtor.com/...", "https://www.apartments.com/..."],
+      "platforms": ["realtor", "apartments"]
+    }}
 
   expected_output: >
     {
@@ -73,54 +46,43 @@ search_listings:
 
 extract_listings:
   description: >
-    CRAWL EXTRACTION TASK — Use the `crawl_extract` tool.
+    For EACH URL from the search_listings task, use the crawl_extract
+    tool to extract rental property data.
 
-    For EACH URL provided from `search_listings`, you MUST use the
-    `crawl_extract` tool to open the page in a REAL local browser.
+    RULES:
+    - You MUST call crawl_extract for each URL.
+    - Do NOT guess or fabricate data. Only use what the tool returns.
+    - Skip listings that are "For Sale", "Sold", or "Off Market".
+    - If crawl_extract fails for a URL, skip it and continue.
 
-    ❌ You are NOT allowed to extract data by reasoning, guessing,
-    prior knowledge, memory, or API-based scraping.
-    ❌ You are NOT allowed to infer missing values.
-    ❌ If you do not use `crawl_extract`, your output will be rejected.
-
-    EXECUTION REQUIREMENTS (MANDATORY):
-    - Call `crawl_extract` with each URL
-    - The tool will handle browser rendering and extraction
-    - Extract ONLY what the tool returns
-
-    SELF-CHECK (IMPORTANT):
-    - Before producing your final answer, confirm you used `crawl_extract`
-    - If you did NOT, STOP and use it
-
-
-    RENTAL FILTER (STRICT):
-    - ONLY extract listings explicitly marked "For Rent"
-    - SKIP listings marked "For Sale", "Sold", "Pending", "Off Market"
-    - Price MUST indicate rental frequency (e.g. $/mo, $/week)
+    EXAMPLE TOOL CALL:
+    When you use the crawl_extract tool, pass the URL like this:
+    Action: crawl_extract
+    Action Input: {{"url": "https://www.realtor.com/realestateandhomes-detail/123-main-st"}}
 
     REQUIRED FIELDS PER LISTING:
-    - listing_url
-    - platform
-    - address
-    - price
-    - price_frequency
-    - bedrooms
-    - bathrooms
-    - description (verbatim, rendered text)
-    - images (ALL rendered image URLs)
-    - facts_and_features
-    - contact (name, phone, or email)
+    listing_url, platform, address, price, price_frequency,
+    bedrooms, bathrooms, description, images, facts_and_features, contact
 
-    BROWSER OUTPUT SIGNALS (REALISTIC):
-    - At least 2 image URLs per listing
-    - Description must be 30+ words
-    - facts_and_features must contain 2+ entries
-
-    OUTPUT RULES:
-    - Return ONLY valid JSON
-    - No markdown
-    - No explanations
-    - No raw HTML
+    YOUR FINAL ANSWER MUST BE ONLY THIS JSON (no other text):
+    {{
+      "listings": [
+        {{
+          "listing_url": "https://...",
+          "platform": "realtor",
+          "address": "123 Main St, City, ST",
+          "price": "$2,500",
+          "price_frequency": "monthly",
+          "bedrooms": 2,
+          "bathrooms": 2,
+          "description": "Full description from the page...",
+          "images": ["https://img1.jpg", "https://img2.jpg"],
+          "facts_and_features": ["Central AC", "In-unit laundry"],
+          "contact": {{"phone": "555-0123"}}
+        }}
+      ],
+      "summary": {{"attempted": 5, "successful": 4, "failed": 1}}
+    }}
 
   expected_output: >
     {
@@ -135,8 +97,8 @@ extract_listings:
           "bathrooms": 2,
           "description": "...",
           "images": ["https://..."],
-          "facts_and_features": {},
-          "contact": {}
+          "facts_and_features": ["Central AC"],
+          "contact": {"phone": "555-0123"}
         }
       ],
       "summary": {
@@ -153,27 +115,26 @@ extract_listings:
 
 validate_data:
   description: >
-    Validate extracted rental listings for completeness and basic correctness.
+    Validate extracted rental listings for completeness and correctness.
 
-    VALIDATION CHECKS:
-    1. Mandatory:
-       - address OR listing_url
-       - price
-       - at least one of: phone or email
-    2. Logical:
-       - Bedrooms and bathrooms must be positive integers if present
-       - Price must be within $100 – $100,000
-       - Image URLs must start with http/https
-    3. Assign quality_score (0–100):
-       - 90–100: Complete and clean
-       - 70–89: Minor missing fields
-       - 50–69: Multiple gaps
-       - <50: Critical issues
+    CHECKS:
+    1. Required: address OR listing_url, price, at least one contact method
+    2. Logical: bedrooms/bathrooms are positive numbers, price $100-$100,000
+    3. Score each listing 0-100 (90+: complete, 70-89: minor gaps, <70: issues)
 
-    IMPORTANT:
-    - Do NOT remove listings
-    - Only flag issues
-    - Add validation_notes per listing if needed
+    Do NOT remove listings. Only flag issues and add validation_notes.
+
+    YOUR FINAL ANSWER MUST BE ONLY THIS JSON (no other text):
+    {{
+      "listings": [
+        {{
+          "listing_url": "https://...",
+          "quality_score": 92,
+          "validation_notes": []
+        }}
+      ],
+      "summary": {{"total": 4, "passed": 3, "flagged": 1}}
+    }}
 
   expected_output: >
     {
@@ -197,42 +158,32 @@ validate_data:
 
 compile_research_report:
   description: >
-    Compile validated rental listings into a frontend-ready JSON report
-    for human review and approval.
+    Compile validated rental listings into a frontend-ready JSON report.
 
     REQUIREMENTS:
     - Snake_case keys
-    - Stable property IDs (prop_001, prop_002, ...)
-    - Sorted by quality_score DESC
+    - Property IDs: prop_001, prop_002, etc.
+    - Sorted by quality_score descending
     - No empty objects (use null or empty arrays)
 
     REPORT STRUCTURE:
-    1. metadata:
-       - search_criteria
-       - generated_at
-       - total_found
-       - total_validated
-    2. properties:
-       - id
-       - display_title
-       - price_display
-       - location_display
-       - primary_image
-       - all_images
-       - specs (beds, baths, sqft, type)
-       - contact
-       - listing_url
-       - quality_score
-    3. issues:
-       - properties_with_no_contact
-       - properties_with_no_images
-       - properties_flagged
+    1. metadata: search_criteria, generated_at, total_found, total_validated
+    2. properties: id, display_title, price_display, location_display,
+       primary_image, all_images, specs, contact, listing_url, quality_score
+    3. issues: properties_with_no_contact, properties_with_no_images, properties_flagged
+
+    YOUR FINAL ANSWER MUST BE ONLY THIS JSON (no other text):
+    {{
+      "metadata": {{"search_criteria": "...", "total_found": 4}},
+      "properties": [],
+      "issues": {{}}
+    }}
 
   expected_output: >
     {
-      "metadata": { ... },
-      "properties": [ ... ],
-      "issues": { ... }
+      "metadata": { "..." : "..." },
+      "properties": [ "..." ],
+      "issues": { "..." : "..." }
     }
 
   agent: report_agent
