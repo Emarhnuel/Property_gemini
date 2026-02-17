@@ -113,6 +113,13 @@ nova_llm = LLM(
 )
 
 
+
+nova_llm2 = LLM(
+    model="bedrock/us.amazon.nova-2-pro-v1:0",
+    temperature=0.1,
+)
+
+
 @CrewBase
 class LocationAnalyzerCrew:
     """Location Analyzer Crew - Hierarchical process for geospatial analysis.
@@ -142,7 +149,7 @@ class LocationAnalyzerCrew:
         return Agent(
             config=self.agents_config["manager"],  # type: ignore[index]
             verbose=True,
-            llm=nova_llm,
+            llm=nova_llm2,
             max_iter=8,
             cache=True,
         )
@@ -243,7 +250,7 @@ class LocationAnalyzerCrew:
         return Agent(
             config=self.agents_config["report_agent"],  # type: ignore[index]
             verbose=True,
-            llm=nova_llm,
+            llm=nova_llm2,
             max_iter=5,
             cache=True,
         )
