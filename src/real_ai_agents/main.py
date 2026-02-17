@@ -63,8 +63,9 @@ class RealEstateState(BaseModel):
     properties_found: int = 0
     properties_approved: int = 0
     properties_analyzed: int = 0
-    rooms_redesigned: int = 0 
+    rooms_redesigned: int = 0  
 
+persist() 
 class RealEstateFlow(Flow[RealEstateState]): 
     """AI Real Estate Agent Flow with human-in-the-loop property approval."""
 
@@ -111,6 +112,8 @@ class RealEstateFlow(Flow[RealEstateState]):
         if criteria.max_price:
             search_query += f" under {criteria.max_price}"
         search_query += f" ({criteria.rent_frequency} rent)"
+        
+        print(f"DEBUG: Using Search Query: '{search_query.strip()}'")
         
         result = ResearchCrew().crew().kickoff(inputs={
             "search_criteria": search_query.strip(),
