@@ -127,7 +127,7 @@ class InteriorDesignCrew:
         return Agent(
             config=self.agents_config["design_coordinator"],  # type: ignore[index]
             verbose=True,
-            llm=nova_llm,
+            llm=nova_llm2,
             max_iter=6,
             cache=True,
             tools=[generate_room_description],
