@@ -14,9 +14,14 @@ from real_ai_agents.tools.crawl4ai_tool import crawl_extract_tool
 # ENV
 # =======================
 
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-BROWSER_USE_API_KEY = os.getenv("BROWSER_USE_API_KEY")
+# OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+# GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+# BROWSER_USE_API_KEY = os.getenv("BROWSER_USE_API_KEY")
+
+
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_REGION_NAME = os.getenv("AWS_DEFAULT_REGION")
 
 
 # =======================
@@ -76,12 +81,14 @@ def validate_search_used(result: TaskOutput) -> Tuple[bool, Any]:
 
     raw = raw.strip()
 
-    # Must start and end with JSON object
-    if not raw.startswith("{") or not raw.endswith("}"):
-        return False, "Output is not pure JSON (extra text detected)"
+    # Extract JSON object from response (Nova may wrap in text)
+    start = raw.find("{")
+    end = raw.rfind("}")
+    if start == -1 or end == -1:
+        return False, "No JSON object found in output"
 
     try:
-        data = json.loads(raw)
+        data = json.loads(raw[start : end + 1])
     except Exception as e:
         return False, f"Invalid JSON: {e}"
 
@@ -126,8 +133,14 @@ def crawl_extraction_guardrail(result: TaskOutput) -> Tuple[bool, Any]:
     """
     raw = result.raw if isinstance(result.raw, str) else json.dumps(result.raw)
 
+    # Extract JSON object from response (Nova may wrap in text)
+    start = raw.find("{")
+    end = raw.rfind("}")
+    if start == -1 or end == -1:
+        return False, "No JSON object found in output"
+
     try:
-        data = json.loads(raw)
+        data = json.loads(raw[start : end + 1])
     except Exception:
         return False, "Invalid JSON output"
 
@@ -163,9 +176,14 @@ def crawl_extraction_guardrail(result: TaskOutput) -> Tuple[bool, Any]:
 # =======================
 
 nova_llm = LLM(
-    model="bedrock/us.amazon.nova-2-lite-v1:0",
+    model="bedrock/amazon.nova-lite-v1:0",
     temperature=0.0,
-    max_tokens=20000,
+
+)
+
+nova_llm2 = LLM(
+    model="bedrock/qwen.qwen3-next-80b-a3b",
+    temperature=0.1,
 )
 
 
@@ -200,7 +218,7 @@ class ResearchCrew:
         """Scraper agent using Gemini Pro - specialized for URL discovery."""
         return Agent(
             config=self.agents_config["scraper"],
-            llm=nova_llm,
+            llm=nova_llm2,
             tools=[tavily_search],
             verbose=False,
             allow_delegation=False,
@@ -214,7 +232,7 @@ class ResearchCrew:
         """Extractor agent using Gemini Pro with Browser Use Cloud tool."""
         return Agent(
             config=self.agents_config["extractor"],
-            llm=nova_llm,
+            llm=nova_llm2,
             tools=[crawl_extract_tool],  # Crawl4AI extraction tool
             verbose=False,
             allow_delegation=False,
@@ -259,7 +277,7 @@ class ResearchCrew:
             config=self.tasks_config["search_listings"],
             output_json=SearchListingsOutput,
             guardrail=validate_search_used,
-            guardrail_max_retries=2,
+            guardrail_max_retries=3,
         )
 
     @task
@@ -269,7 +287,7 @@ class ResearchCrew:
             config=self.tasks_config["extract_listings"],
             output_json=ExtractListingsOutput,
             guardrail=crawl_extraction_guardrail,
-            guardrail_max_retries=2,
+            guardrail_max_retries=3,
         )
 
     @task
