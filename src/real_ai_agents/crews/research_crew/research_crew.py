@@ -182,7 +182,7 @@ nova_llm = LLM(
 )
 
 nova_llm2 = LLM(
-    model="bedrock/qwen.qwen3-next-80b-a3b",
+    model="bedrock/moonshot.kimi-k2-thinking",
     temperature=0.1,
 )
 
