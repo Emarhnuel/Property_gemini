@@ -60,6 +60,8 @@ class RealEstateState(BaseModel):
 # =========================
 # FLOW
 # =========================
+
+@persist
 class RealEstateFlow(Flow[RealEstateState]):
 
     # ✅ AMP will now only ask for these two inputs
