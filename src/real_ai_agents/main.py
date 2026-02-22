@@ -1,15 +1,8 @@
 #!/usr/bin/env python
 """
 AI Real Estate Agent Flow - Find & Redesign
-
-Orchestrates the real estate workflow with human-in-the-loop:
-1. Research Phase - Find properties matching search criteria
-2. Human Approval - User selects which properties to proceed with
-3. Location Phase - Analyze neighborhood amenities
-4. Design Phase - Generate AI-powered room redesigns
+AMP-Optimized Input Version
 """
-
-
 
 import json
 import asyncio
@@ -24,277 +17,214 @@ from real_ai_agents.crews.research_crew.research_crew import ResearchCrew
 from real_ai_agents.crews.location_analyzer_crew.location_analyzer_crew import LocationAnalyzerCrew
 from real_ai_agents.crews.interior_design_crew.interior_design_crew import InteriorDesignCrew
 
-# ============== DEBUG HOOK: Log all tool calls ==============
-import crewai.tools.tool_usage as tool_module
 
-_original_call = tool_module.ToolUsage._render
-
-def debug_tool_run(self, *args, **kwargs):
-    print(f"\n🔧 TOOL CALLED: {self.tools_handler.tools}")
-    return _original_call(self, *args, **kwargs)
-
-tool_module.ToolUsage._render = debug_tool_run
-# =============================================================
-
+# =========================
+# INPUT MODELS
+# =========================
 
 class SearchCriteria(BaseModel):
-    """User search criteria for property discovery."""
-    location: str = Field(description="City, neighborhood, or area to search")
-    property_type: str = Field(default="apartment", description="Type: apartment, house, condo, shortlet, hotel, etc.")
-    bedrooms: Optional[int] = Field(default=None, description="Number of bedrooms")
-    bathrooms: Optional[int] = Field(default=None, description="Number of bathrooms")
-    max_price: Optional[float] = Field(default=None, description="Maximum price/rent")
-    rent_frequency: str = Field(default="monthly", description="Payment frequency: daily, weekly, monthly, yearly")
-    additional_requirements: Optional[str] = Field(default=None, description="Other requirements")
+    location: str
+    property_type: str = "apartment"
+    bedrooms: Optional[int] = None
+    bathrooms: Optional[int] = None
+    max_price: Optional[float] = None
+    rent_frequency: str = "monthly"
+    additional_requirements: Optional[str] = None
 
+
+# =========================
+# FLOW STATE (INTERNAL)
+# =========================
 
 class RealEstateState(BaseModel):
-    """State model for the Real Estate Agent Flow."""
     search_criteria: Optional[SearchCriteria] = None
     design_style_preference: str = "modern minimalist"
-    approved_property_ids: List[str] = Field(default_factory=list)
-    excluded_sites: List[str] = Field(default_factory=list)
+
+    approved_property_ids: List[str] = []
+    excluded_sites: List[str] = []
+
     retry_count: int = 0
     user_feedback: Optional[str] = None
+
     research_results: Optional[str] = None
     filtered_research_results: Optional[str] = None
     location_results: Optional[str] = None
     design_results: Optional[str] = None
+
     properties_found: int = 0
     properties_approved: int = 0
     properties_analyzed: int = 0
-    rooms_redesigned: int = 0  
+    rooms_redesigned: int = 0
 
-persist() 
-class RealEstateFlow(Flow[RealEstateState]): 
-    """AI Real Estate Agent Flow with human-in-the-loop property approval."""
 
+# =========================
+# FLOW
+# =========================
+
+@persist
+class RealEstateFlow(Flow[RealEstateState]):
+
+    # ✅ AMP will now only ask for these two inputs
     @start()
-    def initialize_search(self, crewai_trigger_payload: dict = None):
-        """Initialize the flow with search criteria."""
-        print("\n" + "=" * 60)
-        print("🏠 AI Real Estate Agent - Find & Redesign")
-        print("=" * 60)
-        
-        # Priority: 
-        # 1. Payload passed directly to this method (e.g. via API webhook)
-        # 2. Inputs passed to kickoff() which are stored in self.state by CrewAI Flow (if structured properly)
-        
-        inputs = crewai_trigger_payload or {}
-        
-        # If inputs are empty, use defaults
-        if not inputs.get("search_criteria"):
-            inputs = {
-                "search_criteria": {
-                    "location": "Ojodu, Lagos, Nigeria",
-                    "property_type": "apartment, Flat", 
-                    "bedrooms": 2,
-                    "max_price": 3000000,
-                    "rent_frequency": "yearly/annually"
-                },
-                "design_style": "modern minimalist"
-            }
-            
-        self.state.search_criteria = SearchCriteria(**inputs.get("search_criteria", {}))
-        self.state.design_style_preference = inputs.get("design_style", "modern minimalist")
-        
-        print(f"   Location: {self.state.search_criteria.location}")
-        print(f"   Bedrooms: {self.state.search_criteria.bedrooms}")
-        print("-" * 60)
+    def initialize_search(
+        self,
+        search_criteria: SearchCriteria,
+        design_style: str = "modern minimalist",
+    ):
+        """Initialize search from AMP input."""
+
+        print("\n🏠 AI Real Estate Agent - Find & Redesign")
+        print("=" * 50)
+
+        self.state.search_criteria = search_criteria
+        self.state.design_style_preference = design_style
+
+        print(f"Location: {search_criteria.location}")
+        print(f"Bedrooms: {search_criteria.bedrooms}")
+
+    # -------------------------
+    # PHASE 1 — RESEARCH
+    # -------------------------
 
     @listen(initialize_search)
     def run_research_phase(self):
-        """Phase 1: Run Research Crew to find properties."""
-        print("\n🔍 Phase 1: Property Research")
-        
+
         criteria = self.state.search_criteria
+
         search_query = f"{criteria.bedrooms or ''} bedroom {criteria.property_type} in {criteria.location}"
         if criteria.max_price:
             search_query += f" under {criteria.max_price}"
         search_query += f" ({criteria.rent_frequency} rent)"
-        
-        print(f"DEBUG: Using Search Query: '{search_query.strip()}'")
-        
+
         result = ResearchCrew().crew().kickoff(inputs={
             "search_criteria": search_query.strip(),
             "excluded_sites": self.state.excluded_sites
         })
+
         self.state.research_results = result.raw
-        
+
         try:
-            data = json.loads(result.raw) if isinstance(result.raw, str) else result.raw
-            if isinstance(data, dict) and "properties" in data:
-                self.state.properties_found = len(data["properties"])
-            elif isinstance(data, dict) and "listings" in data:
-                self.state.properties_found = len(data["listings"])
+            data = json.loads(result.raw)
+            key = "properties" if "properties" in data else "listings"
+            if key in data:
+                self.state.properties_found = len(data[key])
         except:
             pass
-        
-        print(f"   ✅ Found {self.state.properties_found} properties")
+
+        print(f"Found {self.state.properties_found} properties")
         return self.state.research_results
+
+    # -------------------------
+    # HUMAN APPROVAL
+    # -------------------------
 
     @listen(run_research_phase)
     @human_feedback(
-        message="Review the properties and select which ones to proceed with. "
-                "Respond with a JSON array of property IDs, e.g. ['prop_001', 'prop_002']. "
-                "Or type 'retry' with feedback to search again.",
+        message="Select property IDs to proceed (e.g. ['prop_001']). Or type 'retry'.",
         emit=["approved", "retry"],
         llm="gemini/gemini-3-flash-preview",
         default_outcome="approved",
     )
     def await_property_approval(self):
-        """PAUSE: Wait for user to select properties."""
-        print("\n⏸️  Awaiting Property Approval...")
         return self.state.research_results
 
     @listen("approved")
     def filter_approved_properties(self, result: HumanFeedbackResult):
-        """Process user feedback and filter properties."""
-        print("\n✅ Processing Property Selection")
-        
+
         try:
-            feedback = result.feedback
-            if isinstance(feedback, str) and feedback.startswith('['):
-                approved_ids = json.loads(feedback)
-            else:
-                approved_ids = [id.strip().strip("'\"") for id in feedback.split(',')]
+            approved_ids = json.loads(result.feedback)
             self.state.approved_property_ids = approved_ids
         except:
             self.state.approved_property_ids = []
-        
+
         try:
             data = json.loads(self.state.research_results)
             key = "properties" if "properties" in data else "listings"
             if key in data:
-                data[key] = [p for p in data[key] if p.get("id") in self.state.approved_property_ids]
+                data[key] = [
+                    p for p in data[key]
+                    if p.get("id") in self.state.approved_property_ids
+                ]
                 self.state.properties_approved = len(data[key])
+
             self.state.filtered_research_results = json.dumps(data)
         except:
             self.state.filtered_research_results = self.state.research_results
-        
-        print(f"   ✅ Approved {self.state.properties_approved} properties")
 
     @listen("retry")
     def handle_retry_search(self, result: HumanFeedbackResult):
-        """Handle user request to retry search with new criteria."""
-        print("\n🔄 Retry Requested")
-        
         self.state.retry_count += 1
         self.state.user_feedback = result.feedback
-        
-        # Parse excluded sites from feedback
-        feedback_lower = result.feedback.lower()
-        if "apartmenthomeliving" in feedback_lower:
-            self.state.excluded_sites.append("apartmenthomeliving.com")
-        
-        print(f"   Retry #{self.state.retry_count}")
-        print(f"   Excluded sites: {self.state.excluded_sites}")
-        
-        # Re-run research phase
         return self.run_research_phase()
+
+    # -------------------------
+    # PHASE 2 — PARALLEL
+    # -------------------------
 
     @listen(filter_approved_properties)
     async def run_parallel_action_phase(self):
-        """Phase 2: Run Location and Design Crews in PARALLEL."""
-        print("\n🚀 Phase 2: Parallel Execution (Location & Design)")
-        
+
         if self.state.properties_approved == 0:
-            print("   ⚠️ No properties approved, skipping...")
             return
 
-        # Prepare inputs
         inputs = {
             "research_results": self.state.filtered_research_results,
             "design_style": self.state.design_style_preference
         }
 
-        # Create tasks for parallel execution
         location_task = asyncio.create_task(
             LocationAnalyzerCrew().crew().kickoff_async(inputs=inputs)
         )
+
         design_task = asyncio.create_task(
             InteriorDesignCrew().crew().kickoff_async(inputs=inputs)
         )
 
-        # Wait for both to complete
-        results = await asyncio.gather(location_task, design_task)
-        
-        # Unpack results
-        location_result, design_result = results
-        
+        location_result, design_result = await asyncio.gather(
+            location_task,
+            design_task
+        )
+
         self.state.location_results = location_result.raw
         self.state.design_results = design_result.raw
-        
-        # Update metrics
+
         self.state.properties_analyzed = self.state.properties_approved
+
         try:
             design_data = json.loads(design_result.raw)
-            self.state.rooms_redesigned = design_data.get("metadata", {}).get("total_rooms_redesigned", 0)
+            self.state.rooms_redesigned = design_data.get(
+                "metadata", {}
+            ).get("total_rooms_redesigned", 0)
         except:
             pass
 
-        print(f"   ✅ Parallel Phase Complete")
-        print(f"      - Analyzed {self.state.properties_analyzed} locations")
-        print(f"      - Redesigned {self.state.rooms_redesigned} rooms")
+    # -------------------------
+    # FINAL REPORT
+    # -------------------------
 
     @listen(run_parallel_action_phase)
     def compile_final_report(self):
-        """Final: Compile unified report."""
-        print("\n📊 Compiling Final Report")
-        
+
         final_report = {
-            "search_criteria": self.state.search_criteria.model_dump() if self.state.search_criteria else {},
+            "search_criteria": self.state.search_criteria.model_dump(),
             "summary": {
                 "properties_found": self.state.properties_found,
                 "properties_approved": self.state.properties_approved,
                 "properties_analyzed": self.state.properties_analyzed,
-                "rooms_redesigned": self.state.rooms_redesigned
+                "rooms_redesigned": self.state.rooms_redesigned,
             },
             "approved_property_ids": self.state.approved_property_ids,
             "phases": {
                 "research": self.state.research_results,
                 "location": self.state.location_results,
-                "design": self.state.design_results
-            }
+                "design": self.state.design_results,
+            },
         }
-        
+
         with open("output/unified_report.json", "w") as f:
             json.dump(final_report, f, indent=2)
-        
-        print("   ✅ Report saved to output/unified_report.json")
-        print("\n🏠 Flow Complete!")
+
+        print("Flow Complete")
         return final_report
 
 
-def kickoff(inputs: dict = None):
-    """
-    Run the Real Estate Agent flow.
-    
-    Args:
-        inputs (dict): Input parameters for the flow.
-                       Expected keys: 'search_criteria', 'design_style'
-    """
-    # Default inputs if none provided
-    if inputs is None:
-        inputs = {
-            "search_criteria": {
-                "location": "Ojodu, Lagos, Nigeria",
-                "property_type": "apartment, Flat",
-                "bedrooms": 2,
-                "max_price": 3000000,
-                "rent_frequency": "yearly/annually"
-            },
-            "design_style": "modern minimalist"
-        }
-        
-    print(f"🚀 Kicking off flow with inputs: {json.dumps(inputs, indent=2)}")
-    RealEstateFlow().kickoff(inputs=inputs)
-
-
-def plot():
-    """Generate flow visualization."""
-    RealEstateFlow().plot()
-
-
-if __name__ == "__main__":
-    kickoff()
