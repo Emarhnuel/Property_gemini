@@ -62,7 +62,7 @@ class RealEstateState(BaseModel):
 # =========================
 
 @persist
-class RealEstateFlow(Flow[SearchCriteria]):
+class RealEstateFlow(Flow[RealEstateState]):
 
     # ✅ AMP will now only ask for these two inputs
     @start()
