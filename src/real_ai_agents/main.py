@@ -228,25 +228,9 @@ class RealEstateFlow(Flow[RealEstateState]):
         return final_report
 
 
-def kickoff(inputs: dict = None):
-    """Run the Real Estate Agent flow."""
-    if inputs is None:
-        inputs = {
-            "search_criteria": SearchCriteria(
-                location="Ojodu, Lagos, Nigeria",
-                property_type="apartment, Flat",
-                bedrooms=2,
-                max_price=3000000,
-                rent_frequency="yearly/annually",
-            ),
-            "design_style": "modern minimalist",
-        }
-    RealEstateFlow().kickoff(inputs=inputs)
-
-
-def plot():
-    """Generate flow visualization."""
-    RealEstateFlow().plot()
+def kickoff():
+    """Run the flow."""
+    RealEstateFlow().kickoff()
 
 
 if __name__ == "__main__":
