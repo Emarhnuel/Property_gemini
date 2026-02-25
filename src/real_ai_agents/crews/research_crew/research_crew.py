@@ -178,12 +178,13 @@ def crawl_extraction_guardrail(result: TaskOutput) -> Tuple[bool, Any]:
 nova_llm = LLM(
     model="bedrock/amazon.nova-lite-v1:0",
     temperature=0.0,
-
+    stop_sequences=None,
 )
 
 nova_llm2 = LLM(
     model="bedrock/moonshot.kimi-k2-thinking",
     temperature=0.1,
+    stop_sequences=None,
 )
 
 
