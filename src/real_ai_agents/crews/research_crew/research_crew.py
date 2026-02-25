@@ -194,9 +194,10 @@ nova_llm2 = LLM(
 # =======================
 
 tavily_search = TavilySearchTool(
+    query="search_criteria",  # Query will be provided by the agent at runtime
     search_depth="advanced",
     max_results=6,
-    include_raw_content=False,  # NEVER include raw content
+    include_raw_content=False,
 )
 
 
