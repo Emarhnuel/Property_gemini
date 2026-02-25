@@ -94,12 +94,16 @@ def validate_design_report(result: TaskOutput) -> Tuple[bool, Any]:
 nova_llm = LLM(
     model="bedrock/us.amazon.nova-2-lite-v1:0",
     temperature=0.1,
+    stop_sequences=[]
+    
 )
 
 
 nova_llm2 = LLM(
     model="bedrock/us.amazon.nova-2-pro-v1:0",
     temperature=0.1,
+    stop_sequences=[]
+
 )
 
 
