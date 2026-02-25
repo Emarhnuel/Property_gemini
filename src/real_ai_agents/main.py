@@ -61,26 +61,18 @@ class RealEstateState(BaseModel):
 # FLOW
 # =========================
 
-@persist
+@persist()
 class RealEstateFlow(Flow[RealEstateState]):
 
-    # ✅ AMP will now only ask for these two inputs
     @start()
-    def initialize_search(
-        self,
-        search_criteria: SearchCriteria,
-        design_style: str = "modern minimalist",
-    ):
-        """Initialize search from AMP input."""
+    def initialize_search(self):
+        """Initialize search from state (populated by kickoff inputs)."""
 
         print("\n🏠 AI Real Estate Agent - Find & Redesign")
         print("=" * 50)
 
-        self.state.search_criteria = search_criteria
-        self.state.design_style_preference = design_style
-
-        print(f"Location: {search_criteria.location}")
-        print(f"Bedrooms: {search_criteria.bedrooms}")
+        print(f"Location: {self.state.search_criteria.location}")
+        print(f"Bedrooms: {self.state.search_criteria.bedrooms}")
 
     # -------------------------
     # PHASE 1 — RESEARCH
@@ -230,7 +222,16 @@ class RealEstateFlow(Flow[RealEstateState]):
 
 def kickoff():
     """Run the flow."""
-    RealEstateFlow().kickoff()
+    RealEstateFlow().kickoff(inputs={
+        "search_criteria": {
+            "location": "Ojodu, Lagos, Nigeria",
+            "property_type": "apartment, Flat",
+            "bedrooms": 2,
+            "max_price": 3000000,
+            "rent_frequency": "yearly/annually",
+        },
+        "design_style_preference": "modern minimalist",
+    })
 
 
 if __name__ == "__main__":
