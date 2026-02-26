@@ -19,27 +19,19 @@ from real_ai_agents.crews.interior_design_crew.interior_design_crew import Inter
 
 
 # =========================
-# INPUT MODELS
-# =========================
-
-class SearchCriteria(BaseModel):
-    location: str
-    property_type: str = "apartment"
-    bedrooms: Optional[int] = None
-    bathrooms: Optional[int] = None
-    max_price: Optional[float] = None
-    rent_frequency: str = "monthly"
-    additional_requirements: Optional[str] = None
-
-
-# =========================
-# FLOW STATE (INTERNAL)
+# FLOW STATE
 # =========================
 
 class RealEstateState(BaseModel):
-    search_criteria: Optional[SearchCriteria] = None
+    # --- User Inputs (Visible in AMP UI) ---
+    location: str = "Ojodu, Lagos"
+    property_type: str = "apartment"
+    bedrooms: int = 2
+    max_price: float = 3000000.0
+    rent_frequency: str = "yearly"
     design_style_preference: str = "modern minimalist"
 
+    # --- Internal State (Hidden from AMP UI) ---
     approved_property_ids: List[str] = Field(default=[], exclude=True)
     excluded_sites: List[str] = Field(default=[], exclude=True)
 
