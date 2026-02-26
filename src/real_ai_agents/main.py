@@ -63,8 +63,8 @@ class RealEstateFlow(Flow[RealEstateState]):
         print("\n🏠 AI Real Estate Agent - Find & Redesign")
         print("=" * 50)
 
-        print(f"Location: {self.state.search_criteria.location}")
-        print(f"Bedrooms: {self.state.search_criteria.bedrooms}")
+        print(f"Location: {self.state.location}")
+        print(f"Bedrooms: {self.state.bedrooms}")
 
     # -------------------------
     # PHASE 1 — RESEARCH
@@ -73,12 +73,10 @@ class RealEstateFlow(Flow[RealEstateState]):
     @listen(initialize_search)
     def run_research_phase(self):
 
-        criteria = self.state.search_criteria
-
-        search_query = f"{criteria.bedrooms or ''} bedroom {criteria.property_type} in {criteria.location}"
-        if criteria.max_price:
-            search_query += f" under {criteria.max_price}"
-        search_query += f" ({criteria.rent_frequency} rent)"
+        search_query = f"{self.state.bedrooms or ''} bedroom {self.state.property_type} in {self.state.location}"
+        if self.state.max_price:
+            search_query += f" under {self.state.max_price}"
+        search_query += f" ({self.state.rent_frequency} rent)"
 
         result = ResearchCrew().crew().kickoff(inputs={
             "search_criteria": search_query.strip(),
@@ -190,7 +188,13 @@ class RealEstateFlow(Flow[RealEstateState]):
     def compile_final_report(self):
 
         final_report = {
-            "search_criteria": self.state.search_criteria.model_dump(),
+            "search_criteria": {
+                "location": self.state.location,
+                "property_type": self.state.property_type,
+                "bedrooms": self.state.bedrooms,
+                "max_price": self.state.max_price,
+                "rent_frequency": self.state.rent_frequency,
+            },
             "summary": {
                 "properties_found": self.state.properties_found,
                 "properties_approved": self.state.properties_approved,
@@ -215,13 +219,11 @@ class RealEstateFlow(Flow[RealEstateState]):
 def kickoff():
     """Run the flow."""
     RealEstateFlow().kickoff(inputs={
-        "search_criteria": {
-            "location": "Ojodu, Lagos, Nigeria",
-            "property_type": "apartment, Flat",
-            "bedrooms": 2,
-            "max_price": 3000000,
-            "rent_frequency": "yearly/annually",
-        },
+        "location": "Ojodu, Lagos",
+        "property_type": "apartment, Flat",
+        "bedrooms": 2,
+        "max_price": 3000000.0,
+        "rent_frequency": "yearly/annually",
         "design_style_preference": "modern minimalist",
     })
 
