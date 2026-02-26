@@ -14,7 +14,7 @@ from real_ai_agents.tools.crawl4ai_tool import crawl_extract_tool
 # ENV
 # =======================
 
-# OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 # GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 # BROWSER_USE_API_KEY = os.getenv("BROWSER_USE_API_KEY")
 
@@ -182,6 +182,12 @@ nova_llm = LLM(
     
 )
 
+llm_2 = LLM(
+    model="openrouter/deepseek/deepseek-v3.2",
+    base_url="https://openrouter.ai/api/v1",
+    api_key=OPENROUTER_API_KEY
+)
+
 nova_llm2 = LLM(
     model="bedrock/amazon.nova-lite-v1:0",
     temperature=0.1,
@@ -194,7 +200,6 @@ nova_llm2 = LLM(
 # =======================
 
 tavily_search = TavilySearchTool(
-    query="search_criteria",  # Query will be provided by the agent at runtime
     search_depth="advanced",
     max_results=6,
     include_raw_content=False,
@@ -221,7 +226,7 @@ class ResearchCrew:
         """Scraper agent using Gemini Pro - specialized for URL discovery."""
         return Agent(
             config=self.agents_config["scraper"],
-            llm=nova_llm2,
+            llm=llm_2,
             tools=[tavily_search],
             verbose=False,
             allow_delegation=False,
