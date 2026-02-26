@@ -40,21 +40,21 @@ class RealEstateState(BaseModel):
     search_criteria: Optional[SearchCriteria] = None
     design_style_preference: str = "modern minimalist"
 
-    approved_property_ids: List[str] = []
-    excluded_sites: List[str] = []
+    approved_property_ids: List[str] = Field(default=[], exclude=True)
+    excluded_sites: List[str] = Field(default=[], exclude=True)
 
-    retry_count: int = 0
-    user_feedback: Optional[str] = None
+    retry_count: int = Field(default=0, exclude=True)
+    user_feedback: Optional[str] = Field(default=None, exclude=True)
 
-    research_results: Optional[str] = None
-    filtered_research_results: Optional[str] = None
-    location_results: Optional[str] = None
-    design_results: Optional[str] = None
+    research_results: Optional[str] = Field(default=None, exclude=True)
+    filtered_research_results: Optional[str] = Field(default=None, exclude=True)
+    location_results: Optional[str] = Field(default=None, exclude=True)
+    design_results: Optional[str] = Field(default=None, exclude=True)
 
-    properties_found: int = 0
-    properties_approved: int = 0
-    properties_analyzed: int = 0
-    rooms_redesigned: int = 0
+    properties_found: int = Field(default=0, exclude=True)
+    properties_approved: int = Field(default=0, exclude=True)
+    properties_analyzed: int = Field(default=0, exclude=True)
+    rooms_redesigned: int = Field(default=0, exclude=True)
 
 
 # =========================
