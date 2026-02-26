@@ -39,6 +39,7 @@ class RealEstateState(BaseModel):
     user_feedback: Optional[str] = Field(default=None, exclude=True)
 
     research_results: Optional[str] = Field(default=None, exclude=True)
+    filtered_research_results: Optional[str] = Field(default=None, exclude=True)
     location_results: Optional[str] = Field(default=None, exclude=True)
     design_results: Optional[str] = Field(default=None, exclude=True)
 
