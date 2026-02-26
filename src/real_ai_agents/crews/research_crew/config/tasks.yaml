@@ -21,7 +21,7 @@ search_listings:
     EXAMPLE TOOL CALL:
     When you use the tavily_search tool, pass the query like this:
     Action: tavily_search
-    Action Input: 2 bedroom apartment for rent in Houston TX
+    Action Input: {"query": "2 bedroom apartment for rent in Houston TX"}
 
     If no rental listings are found, return:
     {{"urls": [], "platforms": []}}
