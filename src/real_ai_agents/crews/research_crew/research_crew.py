@@ -6,6 +6,7 @@ from crewai import Agent, Crew, Process, Task, LLM
 from crewai.project import CrewBase, agent, crew, task
 from crewai.tasks.task_output import TaskOutput
 from crewai_tools import TavilySearchTool
+from src.real_ai_agents.tools.exa_search_tool import ExaSearchTool
 from real_ai_agents.tools.crawl4ai_tool import crawl_extract_tool
 
 
@@ -176,7 +177,7 @@ def crawl_extraction_guardrail(result: TaskOutput) -> Tuple[bool, Any]:
 # =======================
 
 nova_llm = LLM(
-    model="bedrock/amazon.nova-lite-v1:0",
+    model="bedrock/us.amazon.nova-2-lite-v1:0",
     temperature=0.0,
     stop_sequences=[]
     
@@ -188,23 +189,11 @@ llm_2 = LLM(
     api_key=OPENROUTER_API_KEY
 )
 
-nova_llm2 = LLM(
-    model="bedrock/amazon.nova-lite-v1:0",
-    temperature=0.1,
-    stop_sequences=[]
-)
-
-
 # =======================
 # TOOLS
 # =======================
 
-tavily_search = TavilySearchTool(
-    search_depth="advanced",
-    max_results=6,
-    include_raw_content=False,
-)
-
+exa_search = ExaSearchTool()
 
 
 # =======================
@@ -226,9 +215,10 @@ class ResearchCrew:
         """Scraper agent using Gemini Pro - specialized for URL discovery."""
         return Agent(
             config=self.agents_config["scraper"],
-            llm=llm_2,
-            tools=[tavily_search],
-            verbose=False,
+            llm=nova_llm,
+            tools=[exa_search],
+            verbose=True,
+            cache=True,
             allow_delegation=False,
             max_iter=4,
             max_retry_limit=6,
@@ -240,7 +230,7 @@ class ResearchCrew:
         """Extractor agent using Gemini Pro with Browser Use Cloud tool."""
         return Agent(
             config=self.agents_config["extractor"],
-            llm=nova_llm2,
+            llm=nova_llm,
             tools=[crawl_extract_tool],  # Crawl4AI extraction tool
             verbose=False,
             allow_delegation=False,
