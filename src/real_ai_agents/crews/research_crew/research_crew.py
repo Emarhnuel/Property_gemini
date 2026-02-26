@@ -177,10 +177,8 @@ def crawl_extraction_guardrail(result: TaskOutput) -> Tuple[bool, Any]:
 # =======================
 
 nova_llm = LLM(
-    model="bedrock/deepseek.v3.2",
+    model="bedrock/us.amazon.nova-2-lite-v1:0",
     temperature=0.0,
-    # stop_sequences=[]
-    
 )
 
 llm_2 = LLM(
