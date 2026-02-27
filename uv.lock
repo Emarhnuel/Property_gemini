@@ -964,6 +964,22 @@ wheels = [
 ]
 
 [[package]]
+name = "fastapi"
+version = "0.133.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "annotated-doc" },
+    { name = "pydantic" },
+    { name = "starlette" },
+    { name = "typing-extensions" },
+    { name = "typing-inspection" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/22/6f/0eafed8349eea1fa462238b54a624c8b408cd1ba2795c8e64aa6c34f8ab7/fastapi-0.133.1.tar.gz", hash = "sha256:ed152a45912f102592976fde6cbce7dae1a8a1053da94202e51dd35d184fadd6", size = 378741, upload-time = "2026-02-25T18:18:17.398Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d2/c9/a175a7779f3599dfa4adfc97a6ce0e157237b3d7941538604aadaf97bfb6/fastapi-0.133.1-py3-none-any.whl", hash = "sha256:658f34ba334605b1617a65adf2ea6461901bdb9af3a3080d63ff791ecf7dc2e2", size = 109029, upload-time = "2026-02-25T18:18:18.578Z" },
+]
+
+[[package]]
 name = "filelock"
 version = "3.24.3"
 source = { registry = "https://pypi.org/simple" }
@@ -3412,12 +3428,14 @@ dependencies = [
     { name = "crawl4ai", extra = ["all"] },
     { name = "crewai", extra = ["bedrock", "litellm", "tools"] },
     { name = "exa-py" },
+    { name = "fastapi" },
     { name = "google-genai" },
     { name = "matplotlib" },
     { name = "networkx" },
     { name = "requests" },
     { name = "scikit-learn" },
     { name = "tavily-python" },
+    { name = "uvicorn" },
 ]
 
 [package.metadata]
@@ -3425,12 +3443,14 @@ requires-dist = [
     { name = "crawl4ai", extras = ["all"], specifier = ">=0.8.0" },
     { name = "crewai", extras = ["bedrock", "litellm", "tools"], specifier = "==1.9.3" },
     { name = "exa-py", specifier = ">=2.5.0" },
+    { name = "fastapi", specifier = ">=0.133.1" },
     { name = "google-genai", specifier = ">=1.60.0" },
     { name = "matplotlib", specifier = ">=3.10.8" },
     { name = "networkx", specifier = ">=3.4.2" },
     { name = "requests", specifier = ">=2.32.5" },
     { name = "scikit-learn", specifier = ">=1.7.2" },
     { name = "tavily-python", specifier = ">=0.7.19" },
+    { name = "uvicorn", specifier = ">=0.41.0" },
 ]
 
 [[package]]
