@@ -8,12 +8,14 @@ dependencies = [
     "crawl4ai[all]>=0.8.0",
     "crewai[bedrock,litellm,tools]==1.9.3",
     "exa-py>=2.5.0",
-    "google-genai>=1.60.0", 
+    "fastapi>=0.133.1",
+    "google-genai>=1.60.0",
     "matplotlib>=3.10.8",
     "networkx>=3.4.2",
     "requests>=2.32.5",
     "scikit-learn>=1.7.2",
     "tavily-python>=0.7.19",
+    "uvicorn>=0.41.0",
 ]
 
 [project.scripts]
