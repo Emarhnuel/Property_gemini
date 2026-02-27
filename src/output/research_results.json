@@ -1,0 +1,105 @@
+```json
+{
+  "metadata": {
+    "search_criteria": {
+      "location": "Ojodu, Lagos",
+      "property_type": "2 Bedroom Flat/Apartment",
+      "price_range": "₦120,000 - ₦200,000 monthly"
+    },
+    "generated_at": "2025-04-05T14:30:00Z",
+    "total_found": 5,
+    "total_validated": 5
+  },
+  "properties": [
+    {
+      "id": "prop_001",
+      "display_title": "2 Bedroom Flat, Ojodu, Lagos, Nigeria",
+      "price_display": "₦150,000/monthly",
+      "location_display": "Ojodu, Lagos",
+      "primary_image": "https://www.propertypro.com.ng/images/12345678-img1.jpg",
+      "all_images": [
+        "https://www.propertypro.com.ng/images/12345678-img1.jpg",
+        "https://www.propertypro.com.ng/images/12345678-img2.jpg",
+        "https://www.propertypro.com.ng/images/12345678-img3.jpg"
+      ],
+      "specs": {
+        "bedrooms": 2,
+        "bathrooms": 2,
+        "features": [
+          "Central AC",
+          "Security",
+          "Parking",
+          "Modern Kitchen",
+          "24/7 Power Supply",
+          "Repainted Walls",
+          "New Flooring"
+        ]
+      },
+      "contact": "0803-123-4567",
+      "listing_url": "https://www.propertypro.com.ng/property/for-rent/2-bedroom-2-bathroom-flat-for-rent-in-ojodu-lagos/12345678",
+      "quality_score": 100
+    },
+    {
+      "id": "prop_002",
+      "display_title": "2 Bedroom Apartment, Ojodu-Ikeja, Lagos, Nigeria",
+      "price_display": "₦200,000/monthly",
+      "location_display": "Ojodu-Ikeja, Lagos",
+      "primary_image": "https://www.propertypro.com.ng/images/87654321-img1.jpg",
+      "all_images": [
+        "https://www.propertypro.com.ng/images/87654321-img1.jpg",
+        "https://www.propertypro.com.ng/images/87654321-img2.jpg",
+        "https://www.propertypro.com.ng/images/87654321-img3.jpg",
+        "https://www.propertypro.com.ng/images/87654321-img4.jpg"
+      ],
+      "specs": {
+        "bedrooms": 2,
+        "bathrooms": 2,
+        "features": [
+          "Balcony",
+          "Dining Area",
+          "Security",
+          "Parking",
+          "Gated Estate",
+          "CCTV Monitoring",
+          "24-Hour Security Personnel"
+        ]
+      },
+      "contact": "0803-987-6543",
+      "listing_url": "https://www.propertypro.com.ng/property/for-rent/2-bed-2-bath-apartment-ojodu-ikeja/87654321",
+      "quality_score": 100
+    },
+    {
+      "id": "prop_003",
+      "display_title": "2 Bedroom Flat, Ojodu, Lagos",
+      "price_display": "₦180,000/monthly",
+      "location_display": "Ojodu, Lagos",
+      "primary_image": "https://www.privateproperty.com/images/44556677-img1.jpg",
+      "all_images": [
+        "https://www.privateproperty.com/images/44556677-img1.jpg",
+        "https://www.privateproperty.com/images/44556677-img2.jpg"
+      ],
+      "specs": {
+        "bedrooms": 2,
+        "bathrooms": 2,
+        "features": [
+          "Air Conditioning",
+          "Security",
+          "Water Supply",
+          "Close to School",
+          "Built-in Wardrobes",
+          "Shopping Malls Nearby"
+        ]
+      },
+      "contact": "0810-555-1234",
+      "listing_url": "https://www.privateproperty.com/property/2-bedroom-for-rent-ojodu-lagos/44556677",
+      "quality_score": 100
+    },
+    {
+      "id": "prop_004",
+      "display_title": "2 Bedroom Flat, Ojodu, Lagos State",
+      "price_display": "₦120,000/monthly",
+      "location_display": "Ojodu, Lagos State",
+      "primary_image": "https://www.jiji.ng/images/77889900-img1.jpg",
+      "all_images": [
+        "https://www.jiji.ng/images/77889900-img1.jpg",
+        "https://www.jiji.ng/images/77889900-img2.jpg

@@ -173,19 +173,50 @@ def crawl_extraction_guardrail(result: TaskOutput) -> Tuple[bool, Any]:
 
 
 # =======================
-# LLM CONFIG
+# LLM CONFIG    
 # =======================
 
 nova_llm = LLM(
     model="bedrock/us.amazon.nova-2-lite-v1:0",
     temperature=0.0,
+    max_tokens=5000,
+    stop_sequences=[],
 )
 
+
+nova_llm_2 = LLM(
+    model="bedrock/google.gemma-3-27b-it",
+    temperature=0.0, 
+    stop_sequences=[],
+
+)
+
+
 llm_2 = LLM(
-    model="openrouter/deepseek/deepseek-v3.2",
+    model="openrouter/qwen/qwen3.5-35b-a3b",
     base_url="https://openrouter.ai/api/v1",
     api_key=OPENROUTER_API_KEY
 )
+
+
+# =======================
+# PATCH: Strip stopSequences for models that don't support it
+# CrewAI's agent executor sets stop words internally AFTER construction,
+# so stop_sequences=[] in the constructor is not enough.
+# =======================
+def _patch_inference_config(llm_instance):
+    """Wrap _get_inference_config to always remove stopSequences."""
+    original_fn = llm_instance._get_inference_config
+
+    def patched():
+        config = original_fn()
+        config.pop("stopSequences", None)
+        return config
+
+    llm_instance._get_inference_config = patched
+
+_patch_inference_config(nova_llm)
+_patch_inference_config(nova_llm_2)
 
 # =======================
 # TOOLS
@@ -213,7 +244,7 @@ class ResearchCrew:
         """Scraper agent using Gemini Pro - specialized for URL discovery."""
         return Agent(
             config=self.agents_config["scraper"],
-            llm=nova_llm,
+            llm=llm_2,
             tools=[exa_search],
             verbose=True,
             # cache=True,
@@ -228,7 +259,7 @@ class ResearchCrew:
         """Extractor agent using Gemini Pro with Browser Use Cloud tool."""
         return Agent(
             config=self.agents_config["extractor"],
-            llm=nova_llm,
+            llm=llm_2,
             tools=[crawl_extract_tool],  # Crawl4AI extraction tool
             verbose=False,
             allow_delegation=False,
@@ -245,7 +276,7 @@ class ResearchCrew:
         """Validator agent using DeepSeek - cheap reasoning."""
         return Agent(
             config=self.agents_config["validator"],
-            llm=nova_llm,
+            llm=llm_2,
             verbose=True,
             max_iter=4,
             max_retry_limit=6,
