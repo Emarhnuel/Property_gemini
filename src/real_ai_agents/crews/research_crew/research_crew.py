@@ -6,7 +6,7 @@ from crewai import Agent, Crew, Process, Task, LLM
 from crewai.project import CrewBase, agent, crew, task
 from crewai.tasks.task_output import TaskOutput
 from crewai_tools import TavilySearchTool
-from src.real_ai_agents.tools.exa_search_tool import ExaSearchTool
+from real_ai_agents.tools.exa_search_tool import ExaSearchTool
 from real_ai_agents.tools.crawl4ai_tool import crawl_extract_tool
 
 
