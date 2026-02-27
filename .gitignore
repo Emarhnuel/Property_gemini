@@ -21,3 +21,7 @@ frontend/
 
 # Ignore API backend
 src/real_ai_agents/api.py
+
+# Crew outputs
+src/output/
+output/
