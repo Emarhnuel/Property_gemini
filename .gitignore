@@ -11,7 +11,7 @@ pyvenv.cfg
 # Ignore all markdown files except README.md and AGENTS.md
 *.md
 !README.md
-!AGENTS.md
+AGENTS.md
 
 # Crawl4AI Browser Profile
 .browser_profile/
