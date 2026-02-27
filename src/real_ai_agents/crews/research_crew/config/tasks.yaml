@@ -5,28 +5,18 @@
 
 search_listings:
   description: >
-    <task>
-    Use the exa_search tool to find REAL rental property listing URLs matching the user's search criteria.
-    </task>
-
-    <search_criteria>
+    Your task is to find REAL rental property listing URLs matching the following search criteria:
     {search_criteria}
-    </search_criteria>
-
-    <instructions>
-    - You MUST use the exa_search tool to find the properties.
-    - IMPORTANT: When using the tool, you MUST provide the search string as the 'query' argument.
-    - Return 3-6 individual listing URLs (not search/category pages).
-    - Only include rental listings (not for sale).
-    - Do NOT include zillow.com URLs.
+    
+    CRITICAL: You MUST use the exa_search tool to gather these URLs. Provide the search string as the 'query' argument to your tool. Do NOT guess or fabricate URLs.
+    
+    - Return 3 to 6 individual listing URLs (not overarching search or category pages).
+    - Only include rental listings (do not include properties for sale).
+    - Exclude zillow.com URLs.
     - If no rental listings are found, return empty arrays.
-    </instructions>
-
-    <formatting>
-    Return the output strictly as a JSON object with 'urls' and 'platforms' arrays.
-    </formatting>
-
+    - You must output real links obtained directly from your search tool.
   expected_output: >
+    A JSON object containing exactly two keys: 'urls' (a list of string URLs) and 'platforms' (a list of string names of the platforms where the URLs were found). For example:
     {
       "urls": [
         "https://www.realtor.com/realestateandhomes-detail/...",
@@ -34,122 +24,52 @@ search_listings:
       ],
       "platforms": ["realtor", "apartments"]
     }
-
   agent: scraper
-  tool_choice: required
 
 extract_listings:
   description: >
-    <task>
-    For EACH URL provided by the search_listings task, use the crawl_extract tool to extract rental property data.
-    </task>
-
-    <instructions>
-    - You MUST use the crawl_extract tool for each URL. Give the tool the URL to extract data from.
-    - IMPORTANT: When using the tool, you MUST provide the target URL as the 'url' argument.
-    - Do NOT guess or fabricate data. Only use the data returned by the tool.
+    For EACH URL provided by the previous search_listings task, use your crawl_extract tool to extract the property data.
+    
+    CRITICAL: You MUST use the crawl_extract tool. Provide the target URL as the 'url' argument to the tool.
+    
+    - Extract the following fields for each listing: listing_url, platform, address, price, price_frequency, bedrooms, bathrooms, description, images, facts_and_features, contact.
     - Skip listings that are "For Sale", "Sold", or "Off Market".
-    - If the tool fails for a URL, skip it and continue.
-    - Required fields per listing: listing_url, platform, address, price, price_frequency, bedrooms, bathrooms, description, images, facts_and_features, contact.
-    </instructions>
-
-    <formatting>
-    Return the output strictly as a JSON object containing a 'listings' array and a 'summary' object.
-    </formatting>
-
+    - Do NOT guess or fabricate data. Only use the data successfully returned by the extraction tool.
+    - If the tool fails for a URL, simply skip it and proceed to the next one.
   expected_output: >
-    {
-      "listings": [
-        {
-          "listing_url": "https://...",
-          "platform": "realtor",
-          "address": "123 Main St, New York, NY",
-          "price": "$6,000",
-          "price_frequency": "monthly",
-          "bedrooms": 2,
-          "bathrooms": 2,
-          "description": "...",
-          "images": ["https://..."],
-          "facts_and_features": ["Central AC"],
-          "contact": {"phone": "555-0123"}
-        }
-      ],
-      "summary": {
-        "attempted": 5,
-        "successful": 4,
-        "failed": 1
-      }
-    }
-
+    A JSON object containing a 'listings' array (where each item has the extracted property details) and a 'summary' object (containing 'attempted', 'successful', and 'failed' counts).
   agent: extractor
   context:
     - search_listings
-  tool_choice: required
 
 validate_data:
   description: >
-    <task>
-    Validate extracted rental listings for completeness and correctness.
-    </task>
-
-    <instructions>
-    - Check Required Fields: address OR listing_url, price, at least one contact method.
-    - Check Logic: bedrooms/bathrooms must be positive numbers, price between $100 and $100,000.
-    - Score each listing 0-100 (90+: complete, 70-89: minor gaps, <70: issues).
-    - Do NOT remove listings. Only flag issues and add validation_notes.
-    </instructions>
-
-    <formatting>
-    Return the output strictly as a JSON object containing the evaluated 'listings' and a 'summary'.
-    </formatting>
-
+    Review the structured property data extracted in the extract_listings task and validate it for completeness and correctness.
+    
+    - Check Required Fields: Ensure each listing has an address OR listing_url, a price, and at least one contact method.
+    - Check Logic: Bedrooms and bathrooms must be positive numbers. Price must be between $100 and $100,000.
+    - Action: Score each listing from 0 to 100 (90+: complete, 70-89: minor gaps, <70: major issues).
+    - Add clear explanations for any deductions in the validation_notes array.
+    - Do NOT remove any listings. Just flag any issues found.
   expected_output: >
-    {
-      "listings": [
-        {
-          "...": "...",
-          "quality_score": 92,
-          "validation_notes": []
-        }
-      ],
-      "summary": {
-        "total": 4,
-        "passed": 3,
-        "flagged": 1
-      }
-    }
-
+    A JSON object containing the evaluated 'listings' (each property with its added 'quality_score' and 'validation_notes' fields) and a 'summary' object ('total', 'passed', 'flagged').
   agent: validator
   context:
     - extract_listings
 
 compile_research_report:
   description: >
-    <task>
-    Compile validated rental listings into a frontend-ready JSON report.
-    </task>
-
-    <instructions>
-    - Use snake_case for all JSON keys.
-    - Generate unique Property IDs: prop_001, prop_002, etc.
-    - Sort the list by quality_score in descending order.
-    - Remove any empty objects (use null or empty arrays instead).
-    - Include metadata: search_criteria, generated_at, total_found, total_validated.
-    - Map properties to include: id, display_title, price_display, location_display, primary_image, all_images, specs, contact, listing_url, quality_score.
-    - List issues: properties_with_no_contact, properties_with_no_images, properties_flagged.
-    </instructions>
-
-    <formatting>
-    Return the output strictly as a JSON object with 'metadata', 'properties', and 'issues' keys.
-    </formatting>
-
+    Compile the validated rental listings into a frontend-ready JSON report.
+    
+    - Format all JSON keys in snake_case.
+    - Add a unique ID to each property (e.g., prop_001, prop_002).
+    - Sort the properties by quality_score in descending order.
+    - Replace any empty objects with null or empty arrays.
+    - Include a 'metadata' block: search_criteria, generated_at, total_found, total_validated.
+    - Include an 'issues' block: properties_with_no_contact, properties_with_no_images, properties_flagged.
+    - Property mapping must include: id, display_title, price_display, location_display, primary_image, all_images, specs, contact, listing_url, quality_score.
   expected_output: >
-    {
-      "metadata": { "..." : "..." },
-      "properties": [ "..." ],
-      "issues": { "..." : "..." }
-    }
-
+    A strictly formatted JSON object with three root keys: 'metadata', 'properties', and 'issues'.
   agent: report_agent
   context:
     - validate_data
