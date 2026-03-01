@@ -2,11 +2,13 @@
 name = "real_ai_agents"
 version = "0.1.4"
 description = "Real estate agent using crewAI"
-authors = [{ name = "Emmanuel Ezeokeke", email = "Ezeokekemm016@gmail.com" }] 
+authors = [
+    { name = "Emmanuel Ezeokeke", email = "Ezeokekemm016@gmail.com" },
+]
 requires-python = ">=3.10,<3.15"
 dependencies = [
     "crawl4ai[all]>=0.8.0",
-    "crewai[bedrock,litellm,tools]==1.9.3",
+    "crewai[bedrock,litellm,tools]==1.10.0",
     "exa-py>=2.5.0",
     "fastapi>=0.133.1",
     "google-genai>=1.60.0",
@@ -24,7 +26,9 @@ kickoff = "real_ai_agents.main:kickoff"
 run_crew = "real_ai_agents.main:kickoff"
 
 [build-system]
-requires = ["hatchling"]
+requires = [
+    "hatchling",
+]
 build-backend = "hatchling.build"
 
 [tool.crewai]
